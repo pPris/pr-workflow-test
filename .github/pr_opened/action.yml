@@ -4,6 +4,7 @@ description: "add comment and label a pr that is newly opened"
 
 inputs:
     repo-token:
+        required: true
         description: "Token with permissions to do repo things"
 
 runs:
