@@ -20,6 +20,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: greet_pr
-        uses: ./.github/actions/pr_opened
+        uses: ./.github/pr_opened
         with:
           repo_token: ${{secrets.GITHUB_TOKEN}}
