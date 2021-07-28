@@ -9,8 +9,8 @@ async function run() {
         core.info("Octokit has been set up");
 
         // params to set
-        const _owner = github.context.owner;
-        const _repo = github.context.repo;
+        const _owner = github.context.repo.owner; 
+        const _repo = github.context.repo.repo;
         const _actor = github.context.actor;
         const commentBody = `Hi ${_actor}, Thank you for contributing. Please comment \`@bot ready for review\` when you're ready to request a review.`
         core.info(github.context.issue);
