@@ -12,13 +12,14 @@ on:
   pull_request: 
 
 jobs: 
-  comment_and_label_new_pr: 
+  handle_new_pr: 
+    name: Handle a new PR 
     runs-on: ubuntu-latest
     steps: 
       - name: checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: greet_pr
-        uses: ./.github/actions/pr_opened
+        uses: ./.github/pr_opened
         with:
-          repo_token: ${{secrets.GITHUB_TOKEN}}
+          repo-token: ${{secrets.GITHUB_TOKEN}}
