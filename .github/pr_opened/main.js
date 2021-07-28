@@ -1,0 +1,37 @@
+const core = require("@actions/core");
+const github = require("@actions/github");
+
+async function run() {
+    try {
+        const token = core.getInput("repo-token");
+        const octokit = github.getOctokit(token);
+
+        // params to set
+        const _owner = github.context.owner;
+        const _repo = github.context.repo;
+        const _actor = github.context.actor;
+        const commentBody = `Hi ${_actor}, Thank you for contributing. Please comment \`@bot ready for review\` when you're ready to request a review.`
+        core.info(github.context);
+
+        const _issue_num = github.context.issue.number;
+
+
+        const comment = await octokit.rest.issues.createComment({
+            owner: _owner,
+            repo: _repo,
+            body: commentBody,
+            issue_number: _issue_num
+        })
+
+        const label = await octokit.rest.issues.addLabels({
+            owner: _owner,
+            repo: _repo,
+            body: commentBody,
+            issue_number: _issue_num,
+            labels: {name: "S.Ongoing"}
+        })
+
+    } catch (ex) {
+        core.setFailed(ex.message);
+    }
+}

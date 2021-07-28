@@ -1,0 +1,23 @@
+# on: [pull-request]
+
+# jobs: 
+#   on_pr_opening:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       issues: write
+#       pull-requests: write
+#     steps:
+
+on:
+  pull_request: 
+
+jobs: 
+  comment_and_label_new_pr: 
+    steps: 
+      - name: checkout
+        uses: actions/checkout@v1
+
+      - name: greet_pr
+        uses: ./.github/actions/pr_opened
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}

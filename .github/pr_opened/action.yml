@@ -1,0 +1,11 @@
+name: "workflow for handling newly opened pr"
+
+description: "add comment and label a pr that is newly opened"
+
+inputs:
+    repo-token:
+        description: "Token with permissions to do repo things"
+
+runs:
+    using: "node12"
+    main: "main.js"
