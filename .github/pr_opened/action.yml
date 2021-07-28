@@ -1,4 +1,4 @@
-name: "workflow for handling newly opened pr"
+name: "Workflow for handling newly opened pr"
 
 description: "add comment and label a pr that is newly opened"
 
