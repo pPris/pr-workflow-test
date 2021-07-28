@@ -16,7 +16,8 @@ async function run() {
         core.info(github.context.issue);
 
         const _issue_num = github.context.issue.number;
-
+        console.log(github.context.issue);
+        console.log(_issue_num);
 
         const comment = await octokit.rest.issues.createComment({
             owner: _owner,
