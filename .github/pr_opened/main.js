@@ -13,7 +13,7 @@ async function run() {
         const _repo = github.context.repo;
         const _actor = github.context.actor;
         const commentBody = `Hi ${_actor}, Thank you for contributing. Please comment \`@bot ready for review\` when you're ready to request a review.`
-        core.info(github.context);
+        core.info(github.context.issue);
 
         const _issue_num = github.context.issue.number;
 
@@ -38,6 +38,7 @@ async function run() {
         core.info("label has been added");
 
     } catch (ex) {
+        core.info(ex);
         core.setFailed(ex.message);
     }
 }
