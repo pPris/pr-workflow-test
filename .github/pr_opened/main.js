@@ -6,6 +6,8 @@ async function run() {
         const token = core.getInput("repo-token");
         const octokit = github.getOctokit(token);
 
+        core.info("Octokit has been set up");
+
         // params to set
         const _owner = github.context.owner;
         const _repo = github.context.repo;
@@ -23,6 +25,8 @@ async function run() {
             issue_number: _issue_num
         })
 
+        core.info("Commented: " + commentBody);
+
         const label = await octokit.rest.issues.addLabels({
             owner: _owner,
             repo: _repo,
@@ -31,7 +35,11 @@ async function run() {
             labels: {name: "S.Ongoing"}
         })
 
+        core.info("label has been added");
+
     } catch (ex) {
         core.setFailed(ex.message);
     }
 }
+
+run();
