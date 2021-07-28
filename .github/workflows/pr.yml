@@ -22,4 +22,4 @@ jobs:
       - name: greet_pr
         uses: ./.github/pr_opened
         with:
-          repo_token: ${{secrets.GITHUB_TOKEN}}
+          repo-token: ${{secrets.GITHUB_TOKEN}}
