@@ -30,7 +30,7 @@ const _issue_num = github.context.issue.number;
 async function run() {
     try {
         const doesCommentContainKeywords = filterCommentBody();
-        if (doesCommentContainKeywords) return;
+        if (!doesCommentContainKeywords) return;
 
         validate();
 
@@ -94,7 +94,17 @@ async function postComment(message) {
 }
 
 async function labelReadyForReview() {
-    const label = await octokit.rest.issues.addLabels({
+    const removeLabel = await octokit.rest.issues.removeLabel({
+        owner: _owner,
+        repo: _repo,
+        issue_number: _issue_num,
+        labels: ["S.Ongoing"]
+    })
+
+    core.info("removing label...");
+    core.info(removeLabel);
+
+    const addLabel = await octokit.rest.issues.addLabels({
         owner: _owner,
         repo: _repo,
         issue_number: _issue_num,
