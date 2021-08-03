@@ -50,7 +50,7 @@ function filterCommentBody() {
 }
 
 function validate() {
-    validatePRStatus(); // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
+    if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
     
     const {checksRunSuccessfully, errMessage} = validateChecks();
     logInfo(checksRunSuccessfully, "checksRunSuccessfully")
@@ -59,11 +59,14 @@ function validate() {
         postComment(errMessage);
         return false;
     }
+
+    return true;
 }
 
 
 function validatePRStatus() {
     core.warning("no pr validation has been set");
+    return true;
 }
 
 async function validateChecks() {
