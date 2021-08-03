@@ -51,7 +51,9 @@ function filterCommentBody() {
 
 function validate() {
     validatePRStatus(); // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
+    
     const {checksRunSuccessfully, errMessage} = validateChecks();
+    logInfo(checksRunSuccessfully, "checksRunSuccessfully")
 
     if (!checksRunSuccessfully) {
         postComment(errMessage);
@@ -71,9 +73,9 @@ async function validateChecks() {
 
     // wait till checks have completed
 
-    let haveChecksCompleted = false;
+    let areChecksOngoing = false;
 
-    while (haveChecksCompleted) {
+    while (areChecksOngoing) {
         const listChecks = await octokit.rest.checks.listForRef({
             owner,
             repo,
@@ -85,14 +87,17 @@ async function validateChecks() {
     
         logInfo(listChecks.check_runs.output, "output field")
         logInfo(listChecks.check_runs.status)
+
+        // logInfo(areChecksOngoing, "areChecksOngoing");
+        areChecksOngoing = true; // temp
     }
 
     let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
-    let err = null;
+    let errMessage = null;
 
-    core.info(`${checksRunSuccessfully}`)
+    core.info(`checksRunSuccessfully ${checksRunSuccessfully}`)
 
-    return {checksRunSuccessfully: checksRunSuccessfully, errMessage: err};
+    return {checksRunSuccessfully, errMessage};
 }
 
 async function postComment(message) {
