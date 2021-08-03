@@ -15,11 +15,6 @@ const _repo = github.context.repo.repo;
 const _actor = github.context.actor;
 const _issue_num = github.context.issue.number;
 
-// console.log("here"); // does this work here (yes)
-
-
-
-
 
 // todo merge this pr - "Note: This event will only trigger a workflow run if the workflow file is on the default branch."
 
@@ -42,17 +37,13 @@ async function run() {
     }
 }
 
-// if comment body has the exact keywords
+// return if comment body has the exact keywords
 function filterCommentBody() {
-    // const comment = github.event.issue_comment.body;
-    const issueComment = github.context.issue_comment;
-    core.info(`issueComment: ${issueComment}`);
+    const issueComment = github.context.payload.comment.body;
+    const hasKeywords = issueComment.search(reviewKeywords) !== -1;
 
-    // octokit.rest.event.
-    core.info(github.context.payload.comment.body)
-    core.info(github.context.workflow)
-    // core.info(github.event.issue_comment);
-    // core.info(github.event.issue_comment && github.event.issue_comment.comment);
+    core.info(`issueComment: ${issueComment}`);
+    core.info(`keywords found? ${hasKeywords}`);
 }
 
 function validate() {
@@ -64,7 +55,7 @@ function validate() {
 
 
 function validatePRStatus() {
-    core.info("no pr validation has been set");
+    core.warning("no pr validation has been set");
 }
 
 function validateChecks() {
@@ -95,6 +86,7 @@ async function postComment(message) {
     })
 
     core.info("Commented: " + commentBody);
+    core.info(`Status: ${comment}`)
 }
 
 async function labelReadyForReview() {
@@ -115,8 +107,7 @@ async function labelReadyForReview() {
         labels: ["S.ToReview"]
     })
 
-    core.info("label has been added");
-
+    core.info(`label has been added ${addLabel}` );
 }
 
 run();
