@@ -15,7 +15,7 @@ const _repo = github.context.repo.repo;
 const _actor = github.context.actor;
 const _issue_num = github.context.issue.number;
 
-console.log("here"); // does this work here
+// console.log("here"); // does this work here (yes)
 
 
 
@@ -43,10 +43,10 @@ async function run() {
 
 // if comment body has the exact keywords
 function filterCommentBody() {
-    const comment = github.event.issue_comment.body;
+    // const comment = github.event.issue_comment.body;
     const issueComment = github.context.issue_comment;
     core.info(`issueComment: ${issueComment}`);
-    core.info(comment);
+    // core.info(comment);
 }
 
 function validate() {
