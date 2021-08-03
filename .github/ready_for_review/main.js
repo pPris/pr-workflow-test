@@ -13,7 +13,7 @@ core.info("Octokit has been set up");
 const owner = github.context.repo.owner; 
 const repo = github.context.repo.repo;
 const actor = github.context.actor;
-const issue_num = github.context.issue.number;
+const issueNum = github.context.issue.number;
 const ref = github.context.ref;
 
 
@@ -28,7 +28,8 @@ async function run() {
         const doesCommentContainKeywords = filterCommentBody();
         if (!doesCommentContainKeywords) return;
 
-        validate();
+        const valid = validate();
+        if (!valid) return;
 
         labelReadyForReview();
 
@@ -44,14 +45,19 @@ function filterCommentBody() {
     const hasKeywords = issueComment.search(reviewKeywords) !== -1;
 
     core.info(`issueComment: ${issueComment}`);
-    core.info(`keywords found? ${hasKeywords}`);
+    core.info(`keywords found in issue? ${hasKeywords}`);
+
+    return hasKeywords;
 }
 
 function validate() {
     validatePRStatus(); // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
     const {checksRunSuccessfully, errMessage} = validateChecks();
 
-    if (!checksRunSuccessfully) postComment(errMessage);
+    if (!checksRunSuccessfully) {
+        postComment(errMessage);
+        return false;
+    }
 }
 
 
@@ -87,7 +93,7 @@ async function postComment(message) {
     core.info(github.context.issue);
 
     console.log(github.context.issue);
-    console.log(issue_num);
+    console.log(issueNum);
     console.log(owner)
     console.log(repo)
 
@@ -95,7 +101,7 @@ async function postComment(message) {
         owner: owner,
         repo: repo,
         body: commentBody,
-        issue_number: issue_num
+        issue_number: issueNum
     })
 
     core.info("Commented: " + commentBody);
@@ -106,7 +112,7 @@ async function labelReadyForReview() {
     const removeLabel = await octokit.rest.issues.removeLabel({
         owner: owner,
         repo: repo,
-        issue_number: issue_num,
+        issue_number: issueNum,
         labels: ["S.Ongoing"]
     })
 
@@ -116,7 +122,7 @@ async function labelReadyForReview() {
     const addLabel = await octokit.rest.issues.addLabels({
         owner: owner,
         repo: repo,
-        issue_number: issue_num,
+        issue_number: issueNum,
         labels: ["S.ToReview"]
     })
 
