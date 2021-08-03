@@ -47,6 +47,10 @@ function filterCommentBody() {
     // const comment = github.event.issue_comment.body;
     const issueComment = github.context.issue_comment;
     core.info(`issueComment: ${issueComment}`);
+
+    // octokit.rest.event.
+    core.info(github.context.action)
+    core.info(github.context.workflow)
     core.info(github.event.issue_comment);
     core.info(github.event.issue_comment && github.event.issue_comment.comment);
 }
