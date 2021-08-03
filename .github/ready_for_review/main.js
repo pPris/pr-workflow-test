@@ -19,7 +19,6 @@ const ref = github.context.ref;
 
 // todo merge this pr - "Note: This event will only trigger a workflow run if the workflow file is on the default branch."
 
-
 /**
  * this is the main function of this file
  */
@@ -72,13 +71,21 @@ async function validateChecks() {
 
     // wait till checks have completed
 
-    let listChecks = await octokit.rest.checks.listForRef({
-        owner,
-        repo,
-        ref,
-      });
+    let haveChecksCompleted = false;
 
-    core.info(JSON.stringify(listChecks));
+    while (haveChecksCompleted) {
+        const listChecks = await octokit.rest.checks.listForRef({
+            owner,
+            repo,
+            ref,
+          });
+    
+        // core.info(JSON.stringify(listChecks));
+        logJson(listChecks)
+    
+        logInfo(listChecks.check_runs.output, "output field")
+        logInfo(listChecks.check_runs.status)
+    }
 
     let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
     let err = null;
@@ -90,12 +97,6 @@ async function validateChecks() {
 
 async function postComment(message) {
     const commentBody = `Hi ${actor}, please note the following. ${message}`
-    core.info(github.context.issue);
-
-    console.log(github.context.issue);
-    console.log(issueNum);
-    console.log(owner)
-    console.log(repo)
 
     const comment = await octokit.rest.issues.createComment({
         owner: owner,
@@ -127,6 +128,14 @@ async function labelReadyForReview() {
     })
 
     core.info(`label has been added ${addLabel}` );
+}
+
+function logInfo(msg, label) {
+    core.info(`${label}: ${msg}`);
+}
+
+function logJson(string, label) {
+    logInfo(label, JSON.stringify(string));
 }
 
 run();
