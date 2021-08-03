@@ -49,10 +49,10 @@ function filterCommentBody() {
     core.info(`issueComment: ${issueComment}`);
 
     // octokit.rest.event.
-    core.info(github.context.action)
+    core.info(github.context.payload.comment)
     core.info(github.context.workflow)
-    core.info(github.event.issue_comment);
-    core.info(github.event.issue_comment && github.event.issue_comment.comment);
+    // core.info(github.event.issue_comment);
+    // core.info(github.event.issue_comment && github.event.issue_comment.comment);
 }
 
 function validate() {
