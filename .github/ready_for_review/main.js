@@ -10,10 +10,11 @@ core.info("Octokit has been set up");
 
 // params to set
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
-const _owner = github.context.repo.owner; 
-const _repo = github.context.repo.repo;
-const _actor = github.context.actor;
-const _issue_num = github.context.issue.number;
+const owner = github.context.repo.owner; 
+const repo = github.context.repo.repo;
+const actor = github.context.actor;
+const issue_num = github.context.issue.number;
+const ref = github.context.ref;
 
 
 // todo merge this pr - "Note: This event will only trigger a workflow run if the workflow file is on the default branch."
@@ -58,8 +59,20 @@ function validatePRStatus() {
     core.warning("no pr validation has been set");
 }
 
-function validateChecks() {
+async function validateChecks() {
     // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
+
+    // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
+
+    // wait till checks have completed
+
+    let listChecks = await octokit.rest.checks.listForRef({
+        owner,
+        repo,
+        ref,
+      });
+
+    core.info(JSON.stringify(listChecks));
 
     let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
     let err = null;
@@ -70,19 +83,19 @@ function validateChecks() {
 }
 
 async function postComment(message) {
-    const commentBody = `Hi ${_actor}, please note the following. ${message}`
+    const commentBody = `Hi ${actor}, please note the following. ${message}`
     core.info(github.context.issue);
 
     console.log(github.context.issue);
-    console.log(_issue_num);
-    console.log(_owner)
-    console.log(_repo)
+    console.log(issue_num);
+    console.log(owner)
+    console.log(repo)
 
     const comment = await octokit.rest.issues.createComment({
-        owner: _owner,
-        repo: _repo,
+        owner: owner,
+        repo: repo,
         body: commentBody,
-        issue_number: _issue_num
+        issue_number: issue_num
     })
 
     core.info("Commented: " + commentBody);
@@ -91,9 +104,9 @@ async function postComment(message) {
 
 async function labelReadyForReview() {
     const removeLabel = await octokit.rest.issues.removeLabel({
-        owner: _owner,
-        repo: _repo,
-        issue_number: _issue_num,
+        owner: owner,
+        repo: repo,
+        issue_number: issue_num,
         labels: ["S.Ongoing"]
     })
 
@@ -101,9 +114,9 @@ async function labelReadyForReview() {
     core.info(removeLabel);
 
     const addLabel = await octokit.rest.issues.addLabels({
-        owner: _owner,
-        repo: _repo,
-        issue_number: _issue_num,
+        owner: owner,
+        repo: repo,
+        issue_number: issue_num,
         labels: ["S.ToReview"]
     })
 
