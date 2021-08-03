@@ -29,7 +29,8 @@ const _issue_num = github.context.issue.number;
  */
 async function run() {
     try {
-        filterCommentBody();
+        const doesCommentContainKeywords = filterCommentBody();
+        if (doesCommentContainKeywords) return;
 
         validate();
 
@@ -46,7 +47,8 @@ function filterCommentBody() {
     // const comment = github.event.issue_comment.body;
     const issueComment = github.context.issue_comment;
     core.info(`issueComment: ${issueComment}`);
-    // core.info(comment);
+    core.info(github.event.issue_comment);
+    core.info(github.event.issue_comment && github.event.issue_comment.comment);
 }
 
 function validate() {
