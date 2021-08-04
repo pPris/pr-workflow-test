@@ -31,7 +31,7 @@ async function run() {
         const doesCommentContainKeywords = filterCommentBody();
         if (!doesCommentContainKeywords) return;
 
-        const valid = validate();
+        const valid = await validate();
         if (!valid) return;
 
         labelReadyForReview();
@@ -52,10 +52,14 @@ function filterCommentBody() {
     return hasKeywords;
 }
 
+/**
+ * Wrapper function for all validation related checks. If any fail, this function handles adding the comment 
+ * @returns boolean of whether all validation checks 
+ */
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
 
-    const { checksRunSuccessfully, errMessage } = await validateChecks();
+    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks();
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
     // logInfo(validateChecks(), "return result");
 
@@ -122,27 +126,29 @@ async function validateChecks() {
         // logInfo(listChecks.check_runs.status);
     }
 
-    let conclusions = ""; 
+    const conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
+
+    let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
-        logInfo(checkRun, "what's returning undefined?")
+        logJson(checkRun, "what's returning undefined?")
         if (checkRun.status !== "completed") {
-            conclusions += `${checkRun.name} was skipped because this check is found the excluded checks list\n` 
+            conclusionsDetails += `${checkRun.name} was skipped because this check is found the excluded checks list\n` 
         } else {
-            conclusions += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}\n`
+            conclusionsDetails += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}\n`
         }
-        logInfo(conclusions, "current")
+        logInfo(conclusionsDetails, "current")
     });
 
-    logInfo(conclusions, "conclusions of checks ");
+    logInfo(conclusionsDetails, "conclusions of checks ");
 
 
-    let checksRunSuccessfully = !!(conclusions.find(c => c !== "success")); // ! unsure if neutral is ok
-    let errMessage = `There were unsuccessful conclusions found. \n${conclusions}`;
+    let didChecksRunSuccessfully = !!(conclusions.find(c => c !== "success")); // ! unsure if neutral is ok
+    let errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
 
-    core.info(`checksRunSuccessfully ${checksRunSuccessfully}`);
+    core.info(`checksRunSuccessfully ${didChecksRunSuccessfully}`);
 
-    return { checksRunSuccessfully, errMessage };
+    return { didChecksRunSuccessfully, errMessage };
 }
 
 async function postComment(message) {
