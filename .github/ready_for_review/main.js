@@ -179,7 +179,7 @@ async function labelReadyForReview() {
         owner: owner,
         repo: repo,
         issue_number: issueNum,
-        labels: ["s.Ongoing"],
+        name: ["s.Ongoing"],
     })
     .then(res => logInfo(res, "removing label..."))
     .catch(err => logInfo(err, "error removing label"));
