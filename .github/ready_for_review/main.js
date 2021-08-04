@@ -47,7 +47,7 @@ function filterCommentBody() {
     return hasKeywords;
 }
 
-function validate() {
+async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
 
     const { checksRunSuccessfully, errMessage } = await validateChecks();
