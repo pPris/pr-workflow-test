@@ -83,13 +83,19 @@ async function validateChecks() {
             ref,
         });
 
+        const checkRunsArr = listChecks.data.check_runs;
+
+        checkRunsArr.forEach((checkRun) => {
+            console.log(checkRun.output);
+            console.log(checkRun.status);
+        });
+
         // core.info(JSON.stringify(listChecks));
         logJson(listChecks, "logging list checks");
 
         logInfo(listChecks.data.check_runs.output, "output field");
         logInfo(listChecks.data.check_runs.status, "status");
         logInfo(listChecks.check_runs.status);
-
 
         // logInfo(areChecksOngoing, "areChecksOngoing");
         areChecksOngoing = false; // temp
