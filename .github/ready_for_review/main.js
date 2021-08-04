@@ -2,7 +2,7 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const reviewKeywords = "@bot ready for review";
 
-// todo should become class params 
+// todo should become class params
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
@@ -10,12 +10,11 @@ core.info("Octokit has been set up");
 
 // params to set
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
-const owner = github.context.repo.owner; 
+const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const actor = github.context.actor;
 const issueNum = github.context.issue.number;
 const ref = github.context.ref;
-
 
 // todo merge this pr - "Note: This event will only trigger a workflow run if the workflow file is on the default branch."
 
@@ -31,7 +30,6 @@ async function run() {
         if (!valid) return;
 
         labelReadyForReview();
-
     } catch (ex) {
         core.info(ex);
         core.setFailed(ex.message);
@@ -51,10 +49,10 @@ function filterCommentBody() {
 
 function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
-    
-    const {checksRunSuccessfully, errMessage} = validateChecks();
-    logInfo(checksRunSuccessfully, "checksRunSuccessfully")
-    logInfo(validateChecks(), "return result")
+
+    const { checksRunSuccessfully, errMessage } = await validateChecks();
+    logInfo(checksRunSuccessfully, "checksRunSuccessfully");
+    logInfo(validateChecks(), "return result");
 
     if (!checksRunSuccessfully) {
         postComment(errMessage);
@@ -63,7 +61,6 @@ function validate() {
 
     return true;
 }
-
 
 function validatePRStatus() {
     core.warning("no pr validation has been set");
@@ -84,13 +81,13 @@ async function validateChecks() {
             owner,
             repo,
             ref,
-          });
-    
+        });
+
         // core.info(JSON.stringify(listChecks));
-        logJson(listChecks)
-    
-        logInfo(listChecks.check_runs.output, "output field")
-        logInfo(listChecks.check_runs.status)
+        logJson(listChecks);
+
+        logInfo(listChecks.data.check_runs.output, "output field");
+        logInfo(listChecks.data.check_runs.status);
 
         // logInfo(areChecksOngoing, "areChecksOngoing");
         areChecksOngoing = false; // temp
@@ -99,23 +96,23 @@ async function validateChecks() {
     let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
     let errMessage = null;
 
-    core.info(`checksRunSuccessfully ${checksRunSuccessfully}`)
+    core.info(`checksRunSuccessfully ${checksRunSuccessfully}`);
 
-    return {checksRunSuccessfully, errMessage};
+    return { checksRunSuccessfully, errMessage };
 }
 
 async function postComment(message) {
-    const commentBody = `Hi ${actor}, please note the following. ${message}`
+    const commentBody = `Hi ${actor}, please note the following. ${message}`;
 
     const comment = await octokit.rest.issues.createComment({
         owner: owner,
         repo: repo,
         body: commentBody,
-        issue_number: issueNum
-    })
+        issue_number: issueNum,
+    });
 
     logInfo(commentBody, "commented");
-    logJson(comment, "Status")
+    logJson(comment, "Status");
 }
 
 async function labelReadyForReview() {
@@ -123,8 +120,8 @@ async function labelReadyForReview() {
         owner: owner,
         repo: repo,
         issue_number: issueNum,
-        labels: ["S.Ongoing"]
-    })
+        labels: ["S.Ongoing"],
+    });
 
     core.info("removing label...");
     core.info(removeLabel);
@@ -133,10 +130,10 @@ async function labelReadyForReview() {
         owner: owner,
         repo: repo,
         issue_number: issueNum,
-        labels: ["S.ToReview"]
-    })
+        labels: ["S.ToReview"],
+    });
 
-    core.info(`label has been added ${addLabel}` );
+    core.info(`label has been added ${addLabel}`);
 }
 
 function logInfo(msg, label) {
