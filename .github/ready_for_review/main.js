@@ -84,10 +84,12 @@ async function validateChecks() {
         });
 
         // core.info(JSON.stringify(listChecks));
-        logJson(listChecks);
+        logJson(listChecks, "logging list checks");
 
         logInfo(listChecks.data.check_runs.output, "output field");
-        logInfo(listChecks.data.check_runs.status);
+        logInfo(listChecks.data.check_runs.status, "status");
+        logInfo(listChecks.check_runs.status);
+
 
         // logInfo(areChecksOngoing, "areChecksOngoing");
         areChecksOngoing = false; // temp
@@ -121,7 +123,7 @@ async function labelReadyForReview() {
         repo: repo,
         issue_number: issueNum,
         labels: ["S.Ongoing"],
-    });
+    }); // ?! label doesn't exist
 
     core.info("removing label...");
     core.info(removeLabel);
@@ -141,7 +143,9 @@ function logInfo(msg, label) {
 }
 
 function logJson(string, label) {
-    logInfo(label, JSON.stringify(string));
+    // logInfo(JSON.stringify(string), label);
+    core.info(`${label}: `);
+    core.info(JSON.stringify(string));
 }
 
 run();
