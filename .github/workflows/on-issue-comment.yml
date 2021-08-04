@@ -4,7 +4,7 @@ on:
 
 jobs: 
   pr_commented: 
-    name: PR comment
+    name: PR Comment
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:

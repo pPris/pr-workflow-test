@@ -6,6 +6,11 @@ const reviewKeywords = "@bot ready for review";
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
+// todo change in teammates
+const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000;
+// to prevent cyclical checking for passing runs
+const excludedChecksNames = {"PR Comment": 1}; // needs to match names assigned by workflow files
+
 core.info("Octokit has been set up");
 
 // params to set
@@ -67,6 +72,10 @@ function validatePRStatus() {
     return true;
 }
 
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function validateChecks() {
     // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
 
@@ -93,8 +102,12 @@ async function validateChecks() {
             logInfo(checkRun.status, "status");
         });
 
-        const r = checkRunsArr.find(checkRun => checkRun.status !== "completed");
-        if (r !== undefined) continue;
+        const res = checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames));
+
+        if (res !== undefined) {
+            await sleep(usualTimeForChecksToRun);
+            continue;
+        }
         else {
             logInfo(areChecksOngoing, "areChecksOngoing");
             areChecksOngoing = false; // temp
