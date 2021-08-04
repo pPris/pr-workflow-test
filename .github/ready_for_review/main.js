@@ -54,6 +54,7 @@ function validate() {
     
     const {checksRunSuccessfully, errMessage} = validateChecks();
     logInfo(checksRunSuccessfully, "checksRunSuccessfully")
+    logInfo(validateChecks(), "return result")
 
     if (!checksRunSuccessfully) {
         postComment(errMessage);
