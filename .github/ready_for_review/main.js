@@ -28,6 +28,7 @@ const ref = github.context.ref;
  */
 async function run() {
     try {
+        // all comments trigger this workflow
         const doesCommentContainKeywords = filterCommentBody();
         if (!doesCommentContainKeywords) return;
 
@@ -80,6 +81,11 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// returns whether all the checks have completed running, excluding those in the excludedchecks list
+// function didChecksFinishRunning(checkRunsArr) {
+//     return !!(checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames)));
+// }
+
 async function validateChecks() {
     // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
 
@@ -116,35 +122,30 @@ async function validateChecks() {
             logInfo(areChecksOngoing, "areChecksOngoing");
             areChecksOngoing = false; // temp
         }
-
-
-        // core.info(JSON.stringify(listChecks));
-        // logJson(listChecks, "logging list checks");
-
-        // logInfo(listChecks.data.check_runs.output, "output field");
-        // logInfo(listChecks.data.check_runs.status, "status");
-        // logInfo(listChecks.check_runs.status);
     }
 
-    const conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
+    // const conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
+
+    const checkRunsArr = listChecks.data.check_runs;
 
     let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
         logJson(checkRun, "what's returning undefined?")
+        
         if (checkRun.status !== "completed") {
-            conclusionsDetails += `${checkRun.name} was skipped because this check is found the excluded checks list\n` 
+            conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
         } else {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}\n`
         }
+        
         logInfo(conclusionsDetails, "current")
     });
 
     logInfo(conclusionsDetails, "conclusions of checks ");
 
-
-    let didChecksRunSuccessfully = !!(conclusions.find(c => c !== "success")); // ! unsure if neutral is ok
-    let errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
+    const didChecksRunSuccessfully = !!(checkRunsArr.find(checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames))); // ! unsure if neutral is ok
+    const errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
 
     core.info(`checksRunSuccessfully ${didChecksRunSuccessfully}`);
 
@@ -171,7 +172,7 @@ async function labelReadyForReview() {
         repo: repo,
         issue_number: issueNum,
         labels: ["S.Ongoing"],
-    }); // ?! label doesn't exist
+    });
 
     core.info("removing label...");
     core.info(removeLabel);
