@@ -52,7 +52,7 @@ async function validate() {
 
     const { checksRunSuccessfully, errMessage } = await validateChecks();
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
-    logInfo(validateChecks(), "return result");
+    // logInfo(validateChecks(), "return result");
 
     if (!checksRunSuccessfully) {
         postComment(errMessage);
@@ -74,6 +74,8 @@ async function validateChecks() {
 
     // wait till checks have completed
 
+    core.info("validating checks...")
+
     let areChecksOngoing = true;
 
     while (areChecksOngoing) {
@@ -93,9 +95,9 @@ async function validateChecks() {
         // core.info(JSON.stringify(listChecks));
         logJson(listChecks, "logging list checks");
 
-        logInfo(listChecks.data.check_runs.output, "output field");
-        logInfo(listChecks.data.check_runs.status, "status");
-        logInfo(listChecks.check_runs.status);
+        // logInfo(listChecks.data.check_runs.output, "output field");
+        // logInfo(listChecks.data.check_runs.status, "status");
+        // logInfo(listChecks.check_runs.status);
 
         // logInfo(areChecksOngoing, "areChecksOngoing");
         areChecksOngoing = false; // temp
