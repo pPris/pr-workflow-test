@@ -172,7 +172,7 @@ async function labelReadyForReview() {
         repo: repo,
         issue_number: issueNum,
     })
-    .then(res => logInfo(res, "label..."))
+    .then(res => logJson(res, "label..."))
     .catch(err => logInfo(err, "error getting labels"));
 
     await octokit.rest.issues.removeLabel({

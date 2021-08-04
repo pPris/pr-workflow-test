@@ -14,7 +14,7 @@ jobs:
       - run: |
           echo "Comment on PR #${{ github.event.issue.number }}"
       
-      - name: check if pr ready for review signal was commented
+      - name: Check if Ready for Review was Commented on PR
         uses: ./.github/ready_for_review # this uses the action file in the stated file to run the workflow
         with: 
           repo-token: ${{secrets.GITHUB_TOKEN}}
