@@ -167,23 +167,31 @@ async function postComment(message) {
 }
 
 async function labelReadyForReview() {
-    const removeLabel = await octokit.rest.issues.removeLabel({
+    await octokit.rest.issues.listLabelsOnIssue({
+        owner: owner,
+        repo: repo,
+        issue_number: issueNum,
+    })
+    .then(res => logInfo(res, "label..."))
+    .catch(err => logInfo(err, "error getting labels"));
+
+    await octokit.rest.issues.removeLabel({
         owner: owner,
         repo: repo,
         issue_number: issueNum,
         labels: ["s.Ongoing"],
     })
     .then(res => logInfo(res, "removing label..."))
-    .catch(err => logInfo(err, "error removing ongoing label"));
+    .catch(err => logInfo(err, "error removing label"));
 
-    const addLabel = await octokit.rest.issues.addLabels({
+    await octokit.rest.issues.addLabels({
         owner: owner,
         repo: repo,
         issue_number: issueNum,
         labels: ["s.ToReview"],
-    });
-
-    core.info(`label has been added ${addLabel}`);
+    })
+    .then(res => logInfo(res, "adding label..."))
+    .catch(err => logInfo(err, "error adding label"));
 }
 
 function logInfo(msg, label) {
