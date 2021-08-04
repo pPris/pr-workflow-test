@@ -77,9 +77,10 @@ async function validateChecks() {
     core.info("validating checks...")
 
     let areChecksOngoing = true;
+    let listChecks;
 
     while (areChecksOngoing) {
-        const listChecks = await octokit.rest.checks.listForRef({
+        listChecks = await octokit.rest.checks.listForRef({
             owner,
             repo,
             ref,
@@ -88,23 +89,32 @@ async function validateChecks() {
         const checkRunsArr = listChecks.data.check_runs;
 
         checkRunsArr.forEach((checkRun) => {
-            console.log(checkRun.output);
-            console.log(checkRun.status);
+            // console.log(checkRun.output); // sometimes null but seems like some unknown jobs running
+            logInfo(checkRun.status, "status");
         });
 
+        const r = checkRunsArr.find(checkRun => checkRun.status !== "completed");
+        if (r !== undefined) continue;
+        else {
+            logInfo(areChecksOngoing, "areChecksOngoing");
+            areChecksOngoing = false; // temp
+        }
+
+
         // core.info(JSON.stringify(listChecks));
-        logJson(listChecks, "logging list checks");
+        // logJson(listChecks, "logging list checks");
 
         // logInfo(listChecks.data.check_runs.output, "output field");
         // logInfo(listChecks.data.check_runs.status, "status");
         // logInfo(listChecks.check_runs.status);
-
-        // logInfo(areChecksOngoing, "areChecksOngoing");
-        areChecksOngoing = false; // temp
     }
 
-    let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
-    let errMessage = null;
+    let conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
+    logInfo(conclusions, "conclusions of checks");
+
+
+    let checksRunSuccessfully = conclusions.filter(c => c !== "success"); // ! unsure if neutral is ok
+    let errMessage = `There were unsuccessful conclusions found. \n${conclusions}`;
 
     core.info(`checksRunSuccessfully ${checksRunSuccessfully}`);
 
