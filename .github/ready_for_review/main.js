@@ -122,17 +122,19 @@ async function validateChecks() {
         // logInfo(listChecks.check_runs.status);
     }
 
-    let conclusions; 
+    let conclusions = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
+        logInfo(checkRun, "what's returning undefined?")
         if (checkRun.status !== "completed") {
-            conclusions += `${checkRun.name} was skipped because this check is found the excluded checks list` 
+            conclusions += `${checkRun.name} was skipped because this check is found the excluded checks list\n` 
         } else {
-            conclusions += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}`
+            conclusions += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}\n`
         }
+        logInfo(conclusions, "current")
     });
 
-    logInfo(conclusions, "conclusions of checks");
+    logInfo(conclusions, "conclusions of checks ");
 
 
     let checksRunSuccessfully = !!(conclusions.find(c => c !== "success")); // ! unsure if neutral is ok
