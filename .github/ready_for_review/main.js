@@ -171,16 +171,16 @@ async function labelReadyForReview() {
         owner: owner,
         repo: repo,
         issue_number: issueNum,
-        labels: ["S.Ongoing"],
+        labels: ["s.Ongoing"],
     })
     .then(res => logInfo(res, "removing label..."))
-    .catch(err => logInfo(err, "error removing label..."));
+    .catch(err => logInfo(err, "error removing ongoing label"));
 
     const addLabel = await octokit.rest.issues.addLabels({
         owner: owner,
         repo: repo,
         issue_number: issueNum,
-        labels: ["S.ToReview"],
+        labels: ["s.ToReview"],
     });
 
     core.info(`label has been added ${addLabel}`);
