@@ -76,7 +76,7 @@ async function validateChecks() {
 
     // wait till checks have completed
 
-    let areChecksOngoing = false;
+    let areChecksOngoing = true;
 
     while (areChecksOngoing) {
         const listChecks = await octokit.rest.checks.listForRef({
@@ -92,7 +92,7 @@ async function validateChecks() {
         logInfo(listChecks.check_runs.status)
 
         // logInfo(areChecksOngoing, "areChecksOngoing");
-        areChecksOngoing = true; // temp
+        areChecksOngoing = false; // temp
     }
 
     let checksRunSuccessfully = true; // todo - get whether the checks have passed, or any other info
@@ -113,8 +113,8 @@ async function postComment(message) {
         issue_number: issueNum
     })
 
-    core.info("Commented: " + commentBody);
-    core.info(`Status: ${comment}`)
+    logInfo(commentBody, "commented");
+    logJson(comment, "Status")
 }
 
 async function labelReadyForReview() {
