@@ -122,11 +122,20 @@ async function validateChecks() {
         // logInfo(listChecks.check_runs.status);
     }
 
-    let conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
+    let conclusions; 
+    
+    listChecks.data.check_runs.forEach(checkRun => {
+        if (checkRun.status !== "completed") {
+            conclusions += `${checkRun.name} was skipped because this check is found the excluded checks list` 
+        } else {
+            conclusions += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}`
+        }
+    });
+
     logInfo(conclusions, "conclusions of checks");
 
 
-    let checksRunSuccessfully = conclusions.filter(c => c !== "success"); // ! unsure if neutral is ok
+    let checksRunSuccessfully = !!(conclusions.find(c => c !== "success")); // ! unsure if neutral is ok
     let errMessage = `There were unsuccessful conclusions found. \n${conclusions}`;
 
     core.info(`checksRunSuccessfully ${checksRunSuccessfully}`);
