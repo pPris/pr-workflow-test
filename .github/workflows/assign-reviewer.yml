@@ -1,0 +1,14 @@
+on:
+  workflow_dispatch:
+  schedule: 
+    - cron: '14 1 * * *'
+
+jobs: 
+  assign-PRs: 
+    name: Handle PRs that need to be assigned reviewers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Find PRs and assign reviewers if needed
+        uses: ./.github/assign_reviewer
