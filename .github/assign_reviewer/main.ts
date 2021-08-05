@@ -23,7 +23,7 @@ async function getOpenPRs() {
         owner,
         repo,
         state: "open",
-        labels: "s.Ongoing",
+        labels: "s.ToReview",
         assignee: "none"
     })
     .then(res => core.info(JSON.stringify(res)))

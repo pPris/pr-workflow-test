@@ -136,7 +136,7 @@ async function validateChecks() {
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
         } else {
-            conclusionsDetails += `${checkRun.name} has ended with the conclusion: ${checkRun.conclusion}. Here are the details: ${checkRun.details_url}\n`
+            conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details. ](${checkRun.details_url})\n`
         }
         
         logInfo(conclusionsDetails, "current")
