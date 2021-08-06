@@ -73,7 +73,7 @@ async function findPRsToAssignReviewers() {
         .then(res => {core.info(`Assignee ${assignee} have been assigned to PR ${issue_number}.`); core.info(JSON.stringify(res))}) // todo abstract away 
         .catch(err => {throw err}) // should i continue to next pr though?
 
-        indexForAssigning = next(indexForAssigning, possibleAssignees.length);
+        indexForAssigning = next(indexForAssigning);
         core.info("next index: " + indexForAssigning)
 
     };
@@ -137,16 +137,18 @@ will there be any case where bot assigns someone but they unassign themself and 
 /**
  * Generates integer from 0 to @param max 
  */
-function random(max : number) : number{
-    return Math.round(Math.random() * max);
+function random(maxInclusive : number) : number{
+    return Math.round(Math.random() * maxInclusive);
 }
 
 function getStartIndexForAssigning() {
-    return random(possibleAssignees.length);
+    return random(possibleAssignees.length - 1);
 }
 
-function next(idx : number, maxExclusive : number) {
+function next(idx : number) {
     idx++;
-    if (idx >= maxExclusive) idx = 0;
+    if (idx >= possibleAssignees.length) {
+        idx = 0;
+    }
     return idx; 
 }
