@@ -43,6 +43,7 @@ async function findPRsToAssignReviewers() {
 
     // assign PRs starting from a random person in the array, and for the next PR move on to the next index
     let indexForAssigning : number = getStartIndexForAssigning();
+    core.info("index: " + indexForAssigning)
 
     for (const pr of possiblePRsThatNeedAssignees) {
         core.info("checking pr...");
@@ -73,14 +74,10 @@ async function findPRsToAssignReviewers() {
         .catch(err => {throw err}) // should i continue to next pr though?
 
         indexForAssigning = next(indexForAssigning, possibleAssignees.length);
+        core.info("next index: " + indexForAssigning)
 
     };
     
-}
-
-function pickAssignees() {
-    return ["ppris"];
-    // todo return possibleAssignees.any 
 }
 
 run();
@@ -129,7 +126,7 @@ async function wasToReviewLabelAddedInTheLast(hours : number, pr) : Promise<bool
 / check what the issue update events is returning
 / -> get the label date 
 / random picker function
-use alt and check whether all assignees being considered
+! use alt and check whether all assignees being considered
 
 will there be any case where bot assigns someone but they unassign themself and don't assign anyone else? then the bot has to pick a new reviewer?
 */
