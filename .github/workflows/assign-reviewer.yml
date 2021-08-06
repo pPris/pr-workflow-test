@@ -2,6 +2,9 @@ on:
   workflow_dispatch:
   schedule: 
     - cron: '14 1 * * *'
+  push:
+    branches:
+      - assign-reviewer-fix
 
 jobs: 
   assign-PRs: 

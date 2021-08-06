@@ -44,6 +44,14 @@ async function getOpenPRs() {
         // should i check if checks are still passing and add a precautionary message
 
         const diff = (Date.now() - Date.parse(pr.updated_at)) / (1000 * 60 * 60 * 24);
+
+        const events = await octokit.rest.issues.listEvents({
+            owner,
+            repo,
+            issue_number,
+          })
+          .then(res => {core.info(JSON.stringify(res))}) 
+          .catch(err => {throw err})
         
         // todo note that scope was to assign 24 hours after label..
         // https://octokit.github.io/rest.js/v18#issues-list-events
@@ -51,14 +59,6 @@ async function getOpenPRs() {
             core.info("PR had activity in the last 24 hours, skipping as a precaution..."); // actually even commits count as activity so you need to check if it's contributor activity...
             continue;
         } 
-
-        const events = await octokit.rest.issues.listEvents({
-          owner,
-          repo,
-          issue_number,
-        })
-        .then(res => {core.info(JSON.stringify(res))}) 
-        .catch(err => {throw err})
 
         const assignees = pickAssignees();
 
