@@ -21,8 +21,6 @@ const actor = github.context.actor;
 const issueNum = github.context.issue.number;
 const ref = github.context.ref;
 
-// todo merge this pr - "Note: This event will only trigger a workflow run if the workflow file is on the default branch."
-
 /**
  * this is the main function of this file
  */
@@ -58,7 +56,7 @@ function filterCommentBody() {
  * @returns boolean of whether all validation checks 
  */
 async function validate() {
-    if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels
+    if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
     const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks();
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");

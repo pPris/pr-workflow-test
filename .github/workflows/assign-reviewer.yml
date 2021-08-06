@@ -1,8 +1,8 @@
 on:
   workflow_dispatch:
   schedule: 
-    - cron: '14 1 * * *'
-  push:
+    - cron: '17 2/3 * * *' # runs every three hours starting from 2 at a random minute to avoid github peaks 
+  push: # todo remove this 
     branches:
       - assign-reviewer-fix
 
@@ -18,3 +18,5 @@ jobs:
         uses: ./.github/assign_reviewer
         with: 
           repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Changes s.ToReview to s.Ongoing if needed (implementation ongoing)
