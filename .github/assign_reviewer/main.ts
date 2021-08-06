@@ -52,13 +52,13 @@ async function getOpenPRs() {
         // const diff = (Date.now() - Date.parse(pr.updated_at)) / (1000 * 60 * 60 * 24);
         
 
-        const tooSoon = await wasToReviewLabelAddedInTheLast(24, pr)
+        const tooSoon = await wasToReviewLabelAddedInTheLast(hoursBefAutoAssign, pr)
         
         // todo note that scope was to assign 24 hours after label..
-        // if (diff < 1) {
-        //     core.info("PR had activity in the last 24 hours, skipping as a precaution..."); // actually even commits count as activity so you need to check if it's contributor activity...
-        //     continue;
-        // } 
+        if (tooSoon) {
+            core.info(`PR #${issue_number} may have been assigned toReview label in the last 24 hours, skipping...`); // actually even commits count as activity so you need to check if it's contributor activity...
+            continue;
+        } 
 
         const assignees = pickAssignees();
 
@@ -69,7 +69,7 @@ async function getOpenPRs() {
             issue_number,
             assignees: assignees
         })
-        .then(res => {core.info(`Assignee(s) ${assignees} have been assigned to PR ${issue_number} (if not already assigned).`); core.debug(JSON.stringify(res))}) // todo abstract away 
+        .then(res => {core.info(`Assignee(s) ${assignees} have been assigned to PR ${issue_number}.`); core.debug(JSON.stringify(res))}) // todo abstract away 
         .catch(err => {throw err})
 
     };
@@ -94,6 +94,15 @@ async function wasToReviewLabelAddedInTheLast(hours : number, pr) : Promise<bool
     core.info(`checking if label was added in the last ${hours} hours...`)
     const issue_number = pr.number;
 
+    // sort by latest event first, so that we consider the last time that the toReview label was added
+    // check if sort order correct
+    const sortFn = (a, b) => {
+        if (!a.created_at || !b.created_at) return 1; // move back
+        else {
+            return Date.parse(b.created_at) - Date.parse(a.created_at)
+        }
+    }
+
     // get an array of events for the current issue
     //// https://octokit.github.io/rest.js/v18#issues-list-events
     const events = await octokit.rest.issues.listEvents({
@@ -101,14 +110,15 @@ async function wasToReviewLabelAddedInTheLast(hours : number, pr) : Promise<bool
         repo,
         issue_number,
         })
-        .then(res => res.data) 
+        .then(res => res.data.sort(sortFn))
         .catch(err => {throw err})
 
     
     const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == "s.ToReview") ;
 
     if (!labelEvent) {
-        core.info("label event was not found on this pr");
+        // core.info("label event was not found on this pr");
+        core.warning("Some wrong assumption may have been made... this function should have been called only on PRs that are assigned the label.")
         return false;
     }
 
