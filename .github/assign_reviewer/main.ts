@@ -5,9 +5,9 @@ const octokit = github.getOctokit(token);
 
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
-const actor = github.context.actor;
-const issue_number = github.context.issue.number; // underscore to follow the api 
-const ref = github.context.ref;
+// const actor = github.context.actor;
+// const issue_number = github.context.issue.number; // underscore to follow the api 
+// const ref = github.context.ref;
 
 // topic : array of people who can be assigned 
 const possibleAssignees = {
@@ -40,11 +40,14 @@ async function getOpenPRs() {
     core.info(JSON.stringify(possiblePRsThatNeedAssignees));
 
     for (const pr of possiblePRsThatNeedAssignees) {
-        core.info("checking pr...")
+        core.info("checking pr...");
+        const issue_number = pr.number; // common property needed for rest api
+
         // should i check if checks are still passing and add a precautionary message
 
         const diff = (Date.now() - Date.parse(pr.updated_at)) / (1000 * 60 * 60 * 24);
-
+        
+        //// https://octokit.github.io/rest.js/v18#issues-list-events
         const events = await octokit.rest.issues.listEvents({
             owner,
             repo,
@@ -54,7 +57,6 @@ async function getOpenPRs() {
           .catch(err => {throw err})
         
         // todo note that scope was to assign 24 hours after label..
-        // https://octokit.github.io/rest.js/v18#issues-list-events
         if (diff < 1) {
             core.info("PR had activity in the last 24 hours, skipping as a precaution..."); // actually even commits count as activity so you need to check if it's contributor activity...
             continue;
