@@ -148,8 +148,8 @@ function getStartIndexForAssigning() {
     return random(possibleAssignees.length);
 }
 
-function next(idx : number, max : number) {
+function next(idx : number, maxExclusive : number) {
     idx++;
-    if (idx > max) idx = 0;
+    if (idx >= maxExclusive) idx = 0;
     return idx; 
 }
