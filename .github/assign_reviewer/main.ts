@@ -36,6 +36,9 @@ async function getOpenPRs() {
     .then(res => {core.info(JSON.stringify(res)); return res.data;}) // return the array of PRs
     .catch(err => { core.info(err); throw err })
 
+    core.info("what is in this..")
+    core.info(JSON.stringify(possiblePRsThatNeedAssignees));
+
     for (const pr of possiblePRsThatNeedAssignees) {
         core.info("checking pr...")
         // should i check if checks are still passing and add a precautionary message
