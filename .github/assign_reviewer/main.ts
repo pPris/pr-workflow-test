@@ -70,7 +70,7 @@ async function findPRsToAssignReviewers() {
             issue_number,
             assignees: [assignee]
         })
-        .then(res => {core.info(`Assignee ${assignee} have been assigned to PR ${issue_number}.`); core.debug(JSON.stringify(res))}) // todo abstract away 
+        .then(res => {core.info(`Assignee ${assignee} have been assigned to PR ${issue_number}.`); core.info(JSON.stringify(res))}) // todo abstract away 
         .catch(err => {throw err}) // should i continue to next pr though?
 
         indexForAssigning = next(indexForAssigning, possibleAssignees.length);
