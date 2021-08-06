@@ -8,8 +8,8 @@ jobs:
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
-        # with:
-        #   ref: ${{ github.event.pull_request.head.sha }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }} # this runs the workflow on the last commit pushed to the pull request 
 
       - run: |
           echo "Comment on PR #${{ github.event.issue.number }}. Test completing..."
