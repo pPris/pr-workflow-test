@@ -85,7 +85,7 @@ async function sleep(ms) {
 //     return !!(checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames)));
 // }
 
-export async function validateChecks(validateForRef) {
+async function validateChecks(validateForRef) {
     // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
 
     // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
