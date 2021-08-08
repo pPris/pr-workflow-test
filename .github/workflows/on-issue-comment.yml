@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - run: |
-          echo "Comment on PR #${{ github.event.issue.number }} here's the ref ${{ github.event.pull_request.head.ref }} and here's ${{ github.event.pull_request }} and here's ${{ github.event.issue }}"
+          echo "Comment on PR #${{ github.event.issue.number }} here's the ref ${{ github.event.pull_request.head.ref }} and here's ${{ github.event.issue.pull_request.sha }} and here's ${{ JSON.stringify(github.event.issue) }}"
       
       - name: Check if ready for review was commented on PR
         uses: ./.github/ready_for_review # this uses the action file in the stated file to run the workflow
