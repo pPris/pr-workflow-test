@@ -59,9 +59,11 @@ function filterCommentBody() {
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
-    const prHead = core.getInput("ref");
-    logInfo(prHead, "prHead");
-    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(prHead);
+    // const prHead = core.getInput("ref");
+    // logInfo(prHead, "prHead");
+    const sha = getPRHeadShaForIssueNumber(issueNum);
+
+    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(sha);
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
     // logInfo(validateChecks(), "return result");
 
@@ -71,6 +73,19 @@ async function validate() {
     }
 
     return true;
+}
+
+// event payload that triggers this pull request does not contain this info about the PR, so must use rest api again
+async function getPRHeadShaForIssueNumber(pull_number) {
+    const pr = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number,
+      }).catch(err => {throw err});
+
+    const sha = pr.data.head.sha;
+    logInfo(sha, "sha found")
+    return sha;
 }
 
 function validatePRStatus() {
