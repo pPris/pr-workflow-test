@@ -24,3 +24,4 @@ jobs:
         uses: ./.github/pr_opened
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
+          # ref: ${{ github.event.pull_request.head.sha }} # todo test with this

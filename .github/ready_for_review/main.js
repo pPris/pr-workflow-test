@@ -58,7 +58,7 @@ function filterCommentBody() {
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
-    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks();
+    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(ref);
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
     // logInfo(validateChecks(), "return result");
 
@@ -84,52 +84,50 @@ async function sleep(ms) {
 //     return !!(checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames)));
 // }
 
-async function validateChecks() {
+export async function validateChecks(validateForRef) {
     // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
 
     // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
-
-    // wait till checks have completed
 
     core.info("validating checks...")
 
     let areChecksOngoing = true;
     let listChecks;
 
+    // wait for the checks to complete before
     while (areChecksOngoing) {
         listChecks = await octokit.rest.checks.listForRef({
             owner,
             repo,
-            ref,
+            ref: validateForRef,
         });
 
-        const checkRunsArr = listChecks.data.check_runs;
+        const checkRunsArr = listChecks.data.check_runs; // array of check runs, may include the workflow that is running the current file
 
+        // todo delete?
         checkRunsArr.forEach((checkRun) => {
-            // console.log(checkRun.output); // sometimes null but seems like some unknown jobs running
+            // console.log(checkRun.output); // sometimes null but seems like some unknown jobs running // todo figure this out and delete
             logInfo(checkRun.status, "status");
         });
 
+        // find checks that are not completed and sleep while waiting for it to complete 
         const res = checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames));
-
         if (res !== undefined) {
             await sleep(usualTimeForChecksToRun);
             continue;
         }
-        else {
-            logInfo(areChecksOngoing, "areChecksOngoing");
-            areChecksOngoing = false; // temp
-        }
+        
+        logInfo(areChecksOngoing, "areChecksOngoing");
+        areChecksOngoing = false; // todo temp 
     }
-
-    // const conclusions = listChecks.data.check_runs.map(checkRun => checkRun.conclusion);
 
     const checkRunsArr = listChecks.data.check_runs;
 
+    // formatting the conclusions of the check runs for logging purposes 
     let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
-        logJson(checkRun, "what's returning undefined?")
+        logJson(checkRun, "what's returning undefined?") // todo del
         
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
@@ -137,7 +135,7 @@ async function validateChecks() {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details. ](${checkRun.details_url})\n`
         }
         
-        logInfo(conclusionsDetails, "current")
+        logInfo(conclusionsDetails, "current") // todo del
     });
 
     logInfo(conclusionsDetails, "conclusions of checks ");
@@ -164,7 +162,9 @@ async function postComment(message) {
     logJson(comment, "Status");
 }
 
+// remove existing s.Ongoing label before adding new label 
 async function labelReadyForReview() {
+    // todo del
     await octokit.rest.issues.listLabelsOnIssue({
         owner: owner,
         repo: repo,

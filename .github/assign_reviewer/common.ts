@@ -8,6 +8,7 @@ const octokit = github.getOctokit(token);
 
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
+// todo move one level up
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp : string) {
     isValidTimestamp(sinceTimeStamp);
