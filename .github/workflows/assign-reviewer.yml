@@ -22,3 +22,7 @@ jobs:
       - name: Changes s.ToReview to s.Ongoing if needed (implementation ongoing)
         run: |
           echo "implementation ongoing"
+
+
+# each action craeted should have a separate folder but can be run using this workflow file
+# todo this file should be called periodic workflows and can run multiple
