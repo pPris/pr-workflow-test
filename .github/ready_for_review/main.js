@@ -60,7 +60,7 @@ async function validate() {
 
     // const prHead = core.getInput("ref");
     // logInfo(prHead, "prHead");
-    const sha = getPRHeadShaForIssueNumber(issueNum);
+    const sha = await getPRHeadShaForIssueNumber(issueNum);
 
     const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(sha);
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
