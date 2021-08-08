@@ -58,7 +58,9 @@ function filterCommentBody() {
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
-    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(core.getInput("ref"));
+    const prHead = core.getInput("ref");
+    logInfo(prHead, "prHead");
+    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(prHead);
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
     // logInfo(validateChecks(), "return result");
 
@@ -90,7 +92,7 @@ async function validateChecks(validateForRef) {
 
     // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
 
-    core.info(`validating checks on ref ${validateForRef}...`)
+    core.info(`validating checks on ref: ${validateForRef}...`)
 
     let areChecksOngoing = true;
     let listChecks;
