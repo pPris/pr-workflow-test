@@ -90,7 +90,7 @@ async function validateChecks(validateForRef) {
 
     // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
 
-    core.info("validating checks...")
+    core.info(`validating checks on ref ${validateForRef}...`)
 
     let areChecksOngoing = true;
     let listChecks;

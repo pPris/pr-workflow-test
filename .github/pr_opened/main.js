@@ -13,7 +13,7 @@ async function run() {
         const _owner = github.context.repo.owner; 
         const _repo = github.context.repo.repo;
         const _actor = github.context.actor;
-        const commentBody = `Hi ${_actor}, thank you for contributing :tada: Please comment \`@bot ready for review\` when you're ready to request a review.`
+        const commentBody = `Hi ${_actor}, thank you for contributing :tada: Please comment \`@bot ready for review\` when you're ready to request a review. (Do ensure that all checks are passing before requesting.)`
         core.info(github.context.issue);
 
         const _issue_num = github.context.issue.number;
