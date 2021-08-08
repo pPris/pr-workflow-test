@@ -76,6 +76,7 @@ function validatePRStatus() {
 }
 
 async function sleep(ms) {
+    logInfo(`sleeping for ${ms} milliseconds...`)
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -116,8 +117,7 @@ export async function validateChecks(validateForRef) {
             await sleep(usualTimeForChecksToRun);
             continue;
         }
-        
-        logInfo(areChecksOngoing, "areChecksOngoing");
+
         areChecksOngoing = false; // todo temp 
     }
 
@@ -127,15 +127,13 @@ export async function validateChecks(validateForRef) {
     let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
-        logJson(checkRun, "what's returning undefined?") // todo del
+        logInfo(conclusionsDetails, "current") // todo del
         
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
         } else {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details. ](${checkRun.details_url})\n`
         }
-        
-        logInfo(conclusionsDetails, "current") // todo del
     });
 
     logInfo(conclusionsDetails, "conclusions of checks ");
@@ -143,7 +141,7 @@ export async function validateChecks(validateForRef) {
     const didChecksRunSuccessfully = !(checkRunsArr.find(checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames))); // ! unsure if neutral is ok
     const errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
 
-    core.info(`checksRunSuccessfully ${didChecksRunSuccessfully}`);
+    core.info(`didChecksRunSuccessfully ${didChecksRunSuccessfully}`);
 
     return { didChecksRunSuccessfully, errMessage };
 }
@@ -164,15 +162,7 @@ async function postComment(message) {
 
 // remove existing s.Ongoing label before adding new label 
 async function labelReadyForReview() {
-    // todo del
-    await octokit.rest.issues.listLabelsOnIssue({
-        owner: owner,
-        repo: repo,
-        issue_number: issueNum,
-    })
-    .then(res => logJson(res, "label..."))
-    .catch(err => logInfo(err, "error getting labels"));
-
+    // todo abstract
     await octokit.rest.issues.removeLabel({
         owner: owner,
         repo: repo,
@@ -180,7 +170,7 @@ async function labelReadyForReview() {
         name: ["s.Ongoing"],
     })
     .then(res => logInfo(res, "removing label..."))
-    .catch(err => logInfo(err, "error removing label"));
+    .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
 
     await octokit.rest.issues.addLabels({
         owner: owner,
