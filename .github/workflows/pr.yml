@@ -10,6 +10,7 @@
 
 on:
   pull_request: 
+    types: [opened]
 
 jobs: 
   handle_new_pr: 
@@ -23,3 +24,4 @@ jobs:
         uses: ./.github/pr_opened
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
+          # ref: ${{ github.event.pull_request.head.sha }} # todo does opening a new PR need this

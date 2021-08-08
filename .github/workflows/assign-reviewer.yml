@@ -1,7 +1,10 @@
 on:
   workflow_dispatch:
   schedule: 
-    - cron: '14 1 * * *'
+    - cron: '17 2/3 * * *' # runs every three hours starting from 2 at a random minute to avoid github peaks 
+  push: # todo remove this 
+    branches:
+      - assign-reviewer-fix
 
 jobs: 
   assign-PRs: 
@@ -10,5 +13,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
       - name: Find PRs and assign reviewers if needed
         uses: ./.github/assign_reviewer
+        with: 
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Changes s.ToReview to s.Ongoing if needed (implementation ongoing)
+        run: |
+          echo "implementation ongoing"
+
+
+# each action craeted should have a separate folder but can be run using this workflow file
+# todo this file should be called periodic workflows and can run multiple
