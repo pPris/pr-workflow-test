@@ -19,7 +19,7 @@ const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const actor = github.context.actor;
 const issueNum = github.context.issue.number;
-const ref = github.context.ref;
+// const ref = github.context.ref;
 
 /**
  * this is the main function of this file
@@ -58,7 +58,7 @@ function filterCommentBody() {
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
-    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(ref);
+    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(core.getInput("ref"));
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
     // logInfo(validateChecks(), "return result");
 
