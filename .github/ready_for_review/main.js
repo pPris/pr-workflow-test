@@ -19,7 +19,6 @@ const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const actor = github.context.actor;
 const issueNum = github.context.issue.number;
-github.context.payload.pull_request.number
 // const ref = github.context.ref;
 
 /**
