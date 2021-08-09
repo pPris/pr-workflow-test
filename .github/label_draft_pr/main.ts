@@ -40,7 +40,7 @@ async function run() {
     }
 }
 
-async function getPrDraftProperty() : Promise<boolean> {
+async function getPrDraftProperty() {
     return await octokit.rest.pulls.get({
         owner,
         repo,
@@ -51,7 +51,7 @@ async function getPrDraftProperty() : Promise<boolean> {
         log.warn(res.data.draft, "is draft")
         return res.data.draft;
     })
-    .catch(err => log.info(err, "error getting pr (issue) that triggered this workflow"));
+    .catch(err => {log.info(err, "error getting pr (issue) that triggered this workflow"); throw err;});
 }
 
 run();

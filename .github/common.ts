@@ -8,7 +8,6 @@ const octokit = github.getOctokit(token);
 
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
-// todo move one level up
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp : string) {
     isValidTimestamp(sinceTimeStamp);
@@ -33,10 +32,14 @@ function isValidTimestamp(sinceTimeStamp: string) {
     }
 }
 
-export const log = {info: logInfo, warn: logWarn};
+export const log = {info: logInfo, warn: logWarn, jsonInfo: jsonInfo};
 
 function logInfo(msg, label) {
     core.info(`${label}: ${msg}`);
+}
+
+function jsonInfo(jsonToPrint : JSON, label) {
+    core.info(`${label}: ${JSON.stringify(jsonToPrint)}`);
 }
 
 function logWarn(msg, label) {
