@@ -32,3 +32,13 @@ function isValidTimestamp(sinceTimeStamp: string) {
         throw new Error(`the sinceTimeStamp argument passed is an invalid timestamp`);
     }
 }
+
+export const log = {info: logInfo, warn: logWarn};
+
+function logInfo(msg, label) {
+    core.info(`${label}: ${msg}`);
+}
+
+function logWarn(msg, label) {
+    core.warning(`${label}: ${msg}`);
+}

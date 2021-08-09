@@ -10,12 +10,13 @@
 
 on:
   pull_request: 
-    types: [opened]
+    types: [opened, converted_to_draft]
 
 jobs: 
   handle_new_pr: 
     name: Handle a new PR 
     runs-on: ubuntu-latest
+    if: 
     steps: 
       - name: checkout
         uses: actions/checkout@v2
