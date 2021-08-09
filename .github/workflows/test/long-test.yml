@@ -1,4 +1,4 @@
-on: [pull_request]
+# on: [pull_request]
 jobs: 
   short-test-1:
     runs-on: ubuntu-latest
@@ -11,5 +11,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }} # this runs the workflow on the last commit pushed to the pull request 
 
+      # https://github.com/marketplace/actions/wait-sleep
+      - name: Sleep for 1 minute
+        run: sleep 1m 
+        shell: bash
+
       - run: |
-          echo "Comment on PR #${{ github.event.issue.number }}. Test completing..."
+          echo "Test completing..."
