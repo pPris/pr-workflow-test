@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { log } = require("../assign_reviewer/common")
+const { log } = require("../../lib/.github/common")
 
 // todo old files needs to be standardized with new ones
 // todo should core.getInput and getOctokit(token) be enclosed in try catch blocks
