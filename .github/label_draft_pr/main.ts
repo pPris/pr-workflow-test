@@ -1,6 +1,6 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const { log } = require("../../lib/.github/common")
+import core from "@actions/core";
+import github from "@actions/github";
+import { log } from "../../lib/.github/common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
