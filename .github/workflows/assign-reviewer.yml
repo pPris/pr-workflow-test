@@ -5,6 +5,7 @@ on:
   push: # todo remove this 
     branches:
       - assign-reviewer-fix
+      - assignee-sched-fix
 
 jobs: 
   assign-PRs: 

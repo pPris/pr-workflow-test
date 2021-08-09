@@ -99,6 +99,12 @@ export async function findPRsAndAssignReviewers() {
     .catch(err => {
         throw err;
     });
+
+    core.info("here are the events");
+    core.info(JSON.stringify(events));
+    core.info("here are the events summarised...\n =======")
+    events.forEach(x => console.log(`${x.event} ${x.created_at}`));
+    console.log("================")
     
     const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == "s.ToReview") ;
 
