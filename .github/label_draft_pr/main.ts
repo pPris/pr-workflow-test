@@ -53,5 +53,5 @@ async function getPrDraftProperty() : Promise<boolean> {
     })
     .catch(err => log.info(err, "error getting pr (issue) that triggered this workflow"));
 }
-
+...
 run();
