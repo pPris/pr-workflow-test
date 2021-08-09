@@ -1,27 +1,16 @@
-# on: [pull-request]
-
-# jobs: 
-#   on_pr_opening:
-#     runs-on: ubuntu-latest
-#     permissions:
-#       issues: write
-#       pull-requests: write
-#     steps:
-
 on:
   pull_request: 
-    types: [opened]
+    types: [opened, converted_to_draft]
 
 jobs: 
   handle_new_pr: 
-    name: Handle a new PR 
+    name: Handle a draft PR  
     runs-on: ubuntu-latest
     steps: 
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: greet_pr
-        uses: ./.github/pr_opened
+      - name: Check if a PR is a draft and assign label s.Ongoing
+        uses: ./.github/label_draft_pr
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
-          # ref: ${{ github.event.pull_request.head.sha }} # todo does opening a new PR need this
