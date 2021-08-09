@@ -1,5 +1,5 @@
-import core from "@actions/core";
-import github from "@actions/github";
+import core = require("@actions/core");
+import github = require("@actions/github");
 import { log } from "../common";
 
 const token = core.getInput("repo-token");
