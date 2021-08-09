@@ -10,5 +10,5 @@
       //"sourceMap": true
     },
     "include": ["./.github/assign_reviewer/*.ts"],
-    "exclude": ["node_modules"]
+
   }
