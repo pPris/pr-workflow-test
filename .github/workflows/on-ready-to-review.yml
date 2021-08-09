@@ -1,0 +1,19 @@
+on:
+  pull_request: 
+    types: [opened, ready_for_review, synchronize] # todo check if sync = fixing merge conflicts will be caught and you can properly label
+
+jobs: 
+  handle_new_pr: 
+    name: Handle a PR that's marked ready for review
+    runs-on: ubuntu-latest
+    steps: 
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Check if a PR is ready to review and assign label s.ToReview
+        uses: ./.github/label_draft_pr
+        with:
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+
+# so when people open a pull request, bot should check if checks are passing, and if so link them up?
