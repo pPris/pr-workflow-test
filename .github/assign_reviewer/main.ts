@@ -1,6 +1,6 @@
 import core = require("@actions/core");
 import github = require("@actions/github");
-import { relabelPRsAfterReview as relabelPRsAfterReview } from "./changeToReviewToOngoing";
+import { relabelPRsAfterReview } from "./changeToReviewToOngoing";
 import { findPRsAndAssignReviewers } from "./assignReviewersToPRs";
 
 // todo rename this folder to periodic workflows, and most of the info here should be related to assign reviewer --> move it

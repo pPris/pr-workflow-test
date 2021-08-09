@@ -1,6 +1,6 @@
 import core from "@actions/core";
 import github from "@actions/github";
-import { log } from "../../lib/.github/common";
+import { log } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
