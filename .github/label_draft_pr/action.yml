@@ -9,4 +9,4 @@ inputs:
 
 runs:
     using: "node12"
-    main: "main.js"
+    main: "../../lib/.github/label_draft_pr/main.js"

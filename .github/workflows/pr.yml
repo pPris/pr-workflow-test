@@ -1,6 +1,6 @@
 on:
   pull_request: 
-    types: [opened, converted_to_draft]
+    types: [opened, converted_to_draft, synchronize]
 
 jobs: 
   handle_new_pr: 
