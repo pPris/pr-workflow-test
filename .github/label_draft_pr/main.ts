@@ -15,12 +15,12 @@ const issue_number = github.context.issue.number;
 // todo should core.getInput and getOctokit(token) be enclosed in try catch blocks
 async function run() {
     try {
-        log.info(github.context.eventName);
+        log.info(github.context.eventName, "event name");
 
         const isDraftPr = await getPrDraftProperty();
 
         if (!isDraftPr) {
-            log.info("not a draft pr, ending.")
+            core.info("not a draft pr, ending.")
             return;
         }
 
