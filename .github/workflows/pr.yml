@@ -1,10 +1,10 @@
 on:
   pull_request: 
-    types: [opened, converted_to_draft, synchronize]
+    types: [opened, converted_to_draft, synchronize ] # added synchronise in case the merge conflicts prevent this workflow from running when a draft pr was opened or a pr was converted to draft
 
 jobs: 
   handle_new_pr: 
-    name: Handle a draft PR  
+    name: Handle PRs that may be drafts 
     runs-on: ubuntu-latest
     steps: 
       - name: checkout

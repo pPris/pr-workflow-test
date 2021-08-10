@@ -1,5 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const { log } = require("../common");
 const reviewKeywords = "@bot ready for review";
 
 // todo should become class params
@@ -7,8 +8,10 @@ const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
 // todo change in teammates
-const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000;
+const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000; // min * sec * ms 
+
 // to prevent cyclical checking for passing runs
+// todo might not be needed
 const excludedChecksNames = {"PR Comment": 1}; // needs to match names assigned by workflow files
 
 core.info("Octokit has been set up");
@@ -19,7 +22,6 @@ const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const actor = github.context.actor;
 const issueNum = github.context.issue.number;
-// const ref = github.context.ref;
 
 /**
  * this is the main function of this file
@@ -58,13 +60,10 @@ function filterCommentBody() {
 async function validate() {
     if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
 
-    // const prHead = core.getInput("ref");
-    // logInfo(prHead, "prHead");
     const sha = await getPRHeadShaForIssueNumber(issueNum);
 
     const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(sha);
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
-    // logInfo(validateChecks(), "return result");
 
     if (!checksRunSuccessfully) {
         postComment(errMessage);
@@ -97,14 +96,8 @@ async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// returns whether all the checks have completed running, excluding those in the excludedchecks list
-// function didChecksFinishRunning(checkRunsArr) {
-//     return !!(checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames)));
-// }
 
 async function validateChecks(validateForRef) {
-    // for getting the checks run https://octokit.github.io/rest.js/v18#checks-list-for-ref (need to dig more to find what format you get   )
-
     // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
 
     core.info(`validating checks on ref: ${validateForRef}...`)
@@ -114,6 +107,7 @@ async function validateChecks(validateForRef) {
 
     // wait for the checks to complete before
     while (areChecksOngoing) {
+        // https://octokit.github.io/rest.js/v18#checks-list-for-ref
         listChecks = await octokit.rest.checks.listForRef({
             owner,
             repo,
@@ -124,8 +118,7 @@ async function validateChecks(validateForRef) {
 
         // todo delete?
         checkRunsArr.forEach((checkRun) => {
-            // console.log(checkRun.output); // sometimes null but seems like some unknown jobs running // todo figure this out and delete
-            logInfo(checkRun.status, "status");
+            core.info(`current status: ${checkRun.name} ${checkRun.status}`)
         });
 
         // find checks that are not completed and sleep while waiting for it to complete 
@@ -135,7 +128,7 @@ async function validateChecks(validateForRef) {
             continue;
         }
 
-        areChecksOngoing = false; // todo temp 
+        areChecksOngoing = false; 
     }
 
     const checkRunsArr = listChecks.data.check_runs;

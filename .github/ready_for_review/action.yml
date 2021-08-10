@@ -6,10 +6,10 @@ inputs:
     repo-token:
         required: true
         description: "Token with permissions to do repo things"
-    ref:
-        required: true
-        description: "The ref to run the checks on (usually the PR head)"
 
 runs:
     using: "node12"
     main: "main.js"
+
+
+# todo this folder should become obsolete

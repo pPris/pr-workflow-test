@@ -2,10 +2,6 @@ on:
   workflow_dispatch:
   schedule: 
     - cron: '17 2/3 * * *' # runs every three hours starting from 2 at a random minute to avoid github peaks 
-  push: # todo remove this 
-    branches:
-      - assign-reviewer-fix
-      - assignee-sched-fix
 
 jobs: 
   assign-PRs: 

@@ -1,0 +1,17 @@
+on: 
+  check_suite:
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: A job to say hello
+    steps:
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: |
+          echo "Check suite completion triggered this workflow. Completing..."

@@ -1,6 +1,6 @@
 import core = require("@actions/core");
 import github = require("@actions/github");
-import { log } from "../common";
+import { addOngoingLabel, log } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
@@ -15,24 +15,15 @@ const issue_number = github.context.issue.number;
 // todo should core.getInput and getOctokit(token) be enclosed in try catch blocks
 async function run() {
     try {
-        log.info(github.context.eventName, "event name");
-
-        const isDraftPr = await getPrDraftProperty();
-
-        if (!isDraftPr) {
-            core.info("not a draft pr, ending.")
+        const needsLabelling = await isDraftAndNotLabelledOngoing();
+        
+        if (!needsLabelling) {
+            core.info("needs no labelling, ending.")
             return;
         }
 
-        // todo
-        const label = await octokit.rest.issues.addLabels({
-            owner: owner,
-            repo: repo,
-            issue_number: issue_number,
-            labels: ["s.Ongoing"]
-        })    
-        .then(res => log.info(res, "adding label..."))
-        .catch(err => log.info(err, "error adding label"));
+        // todo test that correct headers (core, github, issue_num etc) are used by common.ts
+        await addOngoingLabel();
 
     } catch (ex) {
         core.info(ex);
@@ -40,16 +31,16 @@ async function run() {
     }
 }
 
-async function getPrDraftProperty() {
+async function isDraftAndNotLabelledOngoing() {
     return await octokit.rest.pulls.get({
         owner,
         repo,
         pull_number: issue_number,
     })
     .then(res => {
-        log.info(res, "pr details...");
-        log.warn(res.data.draft, "is draft")
-        return res.data.draft;
+        log.info(res.data.draft, "is pr draft")
+        log.info(res.data.labels, "pr labels details")
+        return res.data.draft && res.data.labels.find(l => l.name === "s.Ongoing") === undefined;
     })
     .catch(err => {log.info(err, "error getting pr (issue) that triggered this workflow"); throw err;});
 }

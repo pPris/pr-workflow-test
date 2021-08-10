@@ -8,6 +8,7 @@ const octokit = github.getOctokit(token);
 
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
+const issue_number = github.context.issue.number;
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp : string) {
     isValidTimestamp(sinceTimeStamp);
@@ -32,16 +33,58 @@ function isValidTimestamp(sinceTimeStamp: string) {
     }
 }
 
+// todo delete if unused
+export async function addOngoingLabel() {
+    await addLabel("s.Ongoing");
+}
+
+export async function addToReviewLabel() {
+    await addLabel("s.ToReview");
+}
+
+export async function dropOngoingLabelAndAddToReview() {
+    await removeLabel("s.Ongoing");
+    await addLabel("s.ToReview");
+}
+
+export async function dropToReviewLabelAndAddOngoing() {
+    await removeLabel("s.ToReview");
+    await addLabel("s.Ongoing");
+}
+
+async function addLabel(labelName : string) {
+    await octokit.rest.issues.addLabels({
+        owner,
+        repo,
+        issue_number,
+        labels: [labelName]
+    })    
+    .then(res => log.info(res.status, "added label with status"))
+    .catch(err => log.info(err, "error adding label"));
+}
+
+async function removeLabel(labelName : string) {
+    await octokit.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number,
+        name: [labelName], // todo check if this works
+    })
+    .then(res => logInfo(res.status, "removing label with status"))
+    .catch(err => logInfo(err, "error removing label (label may not have been applied)"));}
+
+////// things to help with logging
+
 export const log = {info: logInfo, warn: logWarn, jsonInfo: jsonInfo};
 
-function logInfo(msg, label) {
-    core.info(`${label}: ${msg}`);
+function logInfo(toPrint, label) {
+    core.info(`${label}: ${toPrint}`);
 }
 
 function jsonInfo(jsonToPrint : JSON, label) {
     core.info(`${label}: ${JSON.stringify(jsonToPrint)}`);
 }
 
-function logWarn(msg, label) {
-    core.warning(`${label}: ${msg}`);
+function logWarn(toPrint, label) {
+    core.warning(`${label}: ${toPrint}`);
 }
