@@ -5,9 +5,9 @@ on:
   status: 
 
 jobs:
-  test:
+  testjob:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: Check if this works
     steps:
       # To use this repository's private action,
       # you must check out the repository
