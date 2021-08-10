@@ -2,6 +2,7 @@ on:
   check_suite:
     types:
       - completed
+  status: 
 
 jobs:
   test:
@@ -13,5 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - run: | 
+          echo "toJson(github.event)"
+
       - run: |
-          echo "Check suite completion triggered this workflow. Completing..."
+          echo "Check suite completion / status triggered this workflow. Completing..."
