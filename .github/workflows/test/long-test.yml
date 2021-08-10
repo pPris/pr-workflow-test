@@ -15,7 +15,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }} # this runs the workflow on the last commit pushed to the pull request 
 
       # https://github.com/marketplace/actions/wait-sleep
-      - name: Sleep for 2 minutes
+      - name: Sleep for 2 mins
         run: sleep 2m 
         shell: bash
 
