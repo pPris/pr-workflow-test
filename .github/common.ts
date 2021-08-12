@@ -178,7 +178,7 @@ export async function validateChecks(validateForRef : string) : Promise<{ didChe
         }
     });
 
-    log.info(conclusionsDetails, "conclusions of checks ");
+    log.info(conclusionsDetails, "conclusions of checks\n");
 
     const didChecksRunSuccessfully = !(checkRunsArr.find(checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames))); // ! unsure if neutral is ok
     const errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
