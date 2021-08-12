@@ -169,8 +169,6 @@ export async function validateChecks(validateForRef : string) : Promise<{ didChe
     let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
-        log.info(conclusionsDetails, "current") // todo del
-        
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
         } else {
@@ -178,7 +176,7 @@ export async function validateChecks(validateForRef : string) : Promise<{ didChe
         }
     });
 
-    log.info(conclusionsDetails, "conclusions of checks\n");
+    log.info(conclusionsDetails, "conclusions of checks");
 
     const didChecksRunSuccessfully = !(checkRunsArr.find(checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames))); // ! unsure if neutral is ok
     const errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;

@@ -58,6 +58,10 @@ async function run() {
         }
     } else { 
         if (hasLabel(prLabels, "s.Ongoing")) {
+            // shouldn't exit if the author hasn't been warned to clear checks 
+                // i.e. they just converted PR to rfr, or
+                // they just converted PR to rfr and just pushed a merge resolve, in which case how are you going to find this event
+            core.info(github.context.eventName);
             core.info("PR has the ongoing label, exiting...")
             return;
         } else if (hasLabel(prLabels, "s.ToReview")) {
