@@ -1,7 +1,7 @@
 on: 
-  check_suite:
-    types:
-      - completed
+  # check_suite:
+  #   types:
+  #     - completed
   status: 
 
 jobs:

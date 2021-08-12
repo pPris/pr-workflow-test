@@ -1,18 +1,12 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { log } = require("../common");
+const { log, postComment, getPRHeadShaForIssueNumber, validateChecks } = require("../common");
 const reviewKeywords = "@bot ready for review";
 
 // todo should become class params
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
-// todo change in teammates
-const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000; // min * sec * ms 
-
-// to prevent cyclical checking for passing runs
-// todo might not be needed
-const excludedChecksNames = {"PR Comment": 1}; // needs to match names assigned by workflow files
 
 core.info("Octokit has been set up");
 
@@ -20,7 +14,6 @@ core.info("Octokit has been set up");
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
-const actor = github.context.actor;
 const issueNum = github.context.issue.number;
 
 /**
@@ -66,109 +59,20 @@ async function validate() {
     logInfo(checksRunSuccessfully, "checksRunSuccessfully");
 
     if (!checksRunSuccessfully) {
-        postComment(errMessage);
+        await postComment(errMessage);
         return false;
     }
 
     return true;
 }
 
-// event payload that triggers this pull request does not contain this info about the PR, so must use rest api again
-async function getPRHeadShaForIssueNumber(pull_number) {
-    const pr = await octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number,
-      }).catch(err => {throw err});
-
-    const sha = pr.data.head.sha;
-    logInfo(sha, "sha found")
-    return sha;
-}
 
 function validatePRStatus() {
     core.warning("no pr validation has been set");
     return true;
 }
 
-async function sleep(ms) {
-    logInfo(`sleeping for ${ms} milliseconds...`)
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-
-async function validateChecks(validateForRef) {
-    // GitHub Apps must have the checks:read permission on a private repository or pull access to a public repository to get check runs.
-
-    core.info(`validating checks on ref: ${validateForRef}...`)
-
-    let areChecksOngoing = true;
-    let listChecks;
-
-    // wait for the checks to complete before
-    while (areChecksOngoing) {
-        // https://octokit.github.io/rest.js/v18#checks-list-for-ref
-        listChecks = await octokit.rest.checks.listForRef({
-            owner,
-            repo,
-            ref: validateForRef,
-        });
-
-        const checkRunsArr = listChecks.data.check_runs; // array of check runs, may include the workflow that is running the current file
-
-        // todo delete?
-        checkRunsArr.forEach((checkRun) => {
-            core.info(`current status: ${checkRun.name} ${checkRun.status}`)
-        });
-
-        // find checks that are not completed and sleep while waiting for it to complete 
-        const res = checkRunsArr.find(checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames));
-        if (res !== undefined) {
-            await sleep(usualTimeForChecksToRun);
-            continue;
-        }
-
-        areChecksOngoing = false; 
-    }
-
-    const checkRunsArr = listChecks.data.check_runs;
-
-    // formatting the conclusions of the check runs for logging purposes 
-    let conclusionsDetails = ""; 
-    
-    listChecks.data.check_runs.forEach(checkRun => {
-        logInfo(conclusionsDetails, "current") // todo del
-        
-        if (checkRun.status !== "completed") {
-            conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
-        } else {
-            conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details. ](${checkRun.details_url})\n`
-        }
-    });
-
-    logInfo(conclusionsDetails, "conclusions of checks ");
-
-    const didChecksRunSuccessfully = !(checkRunsArr.find(checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames))); // ! unsure if neutral is ok
-    const errMessage = `There were unsuccessful conclusions found. \n${conclusionsDetails}`;
-
-    core.info(`didChecksRunSuccessfully ${didChecksRunSuccessfully}`);
-
-    return { didChecksRunSuccessfully, errMessage };
-}
-
-async function postComment(message) {
-    const commentBody = `Hi ${actor}, please note the following. ${message}`;
-
-    const comment = await octokit.rest.issues.createComment({
-        owner: owner,
-        repo: repo,
-        body: commentBody,
-        issue_number: issueNum,
-    });
-
-    logInfo(commentBody, "commented");
-    logJson(comment, "Status");
-}
 
 // remove existing s.Ongoing label before adding new label 
 async function labelReadyForReview() {
