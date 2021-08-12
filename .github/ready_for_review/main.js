@@ -1,6 +1,7 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 const { log, postComment, getPRHeadShaForIssueNumber, validateChecks } = require("../../lib/.github/common");
+const { dropOngoingLabelAndAddToReview } = require("../common");
 const reviewKeywords = "@bot ready for review";
 
 // todo should become class params
@@ -28,7 +29,7 @@ async function run() {
         const valid = await validate();
         if (!valid) return;
 
-        labelReadyForReview();
+        await dropOngoingLabelAndAddToReview();
     } catch (ex) {
         core.info(ex);
         core.setFailed(ex.message);
@@ -70,30 +71,6 @@ async function validate() {
 function validatePRStatus() {
     core.warning("no pr validation has been set");
     return true;
-}
-
-
-
-// remove existing s.Ongoing label before adding new label 
-async function labelReadyForReview() {
-    // todo abstract
-    await octokit.rest.issues.removeLabel({
-        owner: owner,
-        repo: repo,
-        issue_number: issueNum,
-        name: ["s.Ongoing"],
-    })
-    .then(res => logInfo(res, "removing label..."))
-    .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
-
-    await octokit.rest.issues.addLabels({
-        owner: owner,
-        repo: repo,
-        issue_number: issueNum,
-        labels: ["s.ToReview"],
-    })
-    .then(res => logInfo(res, "adding label..."))
-    .catch(err => logInfo(err, "error adding label"));
 }
 
 function logInfo(msg, label) {
