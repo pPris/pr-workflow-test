@@ -58,7 +58,7 @@ async function run() {
         }
     } else { 
         if (hasLabel(prLabels, "s.Ongoing")) {
-            core.info("pr has ongoing label, exiting...")
+            core.info("PR has the ongoing label, exiting...")
             return;
         } else if (hasLabel(prLabels, "s.ToReview")) {
             await dropToReviewLabelAndAddOngoing();
@@ -68,7 +68,7 @@ async function run() {
 }
 
 function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
-    return arrayOfLabels.find(label) !== undefined;
+    return arrayOfLabels.findIndex(label) !== -1;
 }
 
 run();
