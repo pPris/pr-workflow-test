@@ -11,9 +11,12 @@ const repo = github.context.repo.repo;
 const issue_number = github.context.issue.number;
 const actor = github.context.actor;
 
-// to prevent cyclical checking for passing runs
+// to prevent cyclical checking for passing runs. this happens in validateChecks(current pr branch sha)
+// note: needs to match names assigned by workflow files
 // todo might not be needed
-const excludedChecksNames = {"PR Comment": 1}; // needs to match names assigned by workflow files
+const excludedChecksNames = {
+    "Handle PRs that may be drafts": 1, 
+    "Handle PR that may be ready for review": 1};
 
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp : string) {
@@ -147,7 +150,7 @@ export async function validateChecks(validateForRef : string) : Promise<{ didChe
 
         // todo delete?
         checkRunsArr.forEach((checkRun) => {
-            core.info(`current status: ${checkRun.name} ${checkRun.status}`)
+            core.info(`current status for "${checkRun.name}": ${checkRun.status}`)
         });
 
         // find checks that are not completed and sleep while waiting for it to complete 
