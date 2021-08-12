@@ -10,7 +10,7 @@ const octokit = github.getOctokit(token);
 
 core.info("Octokit has been set up");
 
-// params to set
+// params to se
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
