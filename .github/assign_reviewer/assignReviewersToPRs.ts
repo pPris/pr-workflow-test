@@ -100,6 +100,7 @@ export async function findPRsAndAssignReviewers() {
         throw err;
     });
 
+    // todo hmm
     core.info("here are the events");
     core.info(JSON.stringify(events));
     core.info("here are the events summarised...\n =======")

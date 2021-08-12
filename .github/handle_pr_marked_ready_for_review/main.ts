@@ -68,7 +68,7 @@ async function run() {
 }
 
 function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
-    return arrayOfLabels.findIndex(label) !== -1;
+    return arrayOfLabels.findIndex(l => l ===label) !== -1;
 }
 
 run();
