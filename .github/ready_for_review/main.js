@@ -1,7 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { log, postComment, getPRHeadShaForIssueNumber, validateChecks } = require("../../lib/.github/common");
-const { dropOngoingLabelAndAddToReview } = require("../common");
+const { log, postComment, getPRHeadShaForIssueNumber, validateChecks, dropOngoingLabelAndAddToReview } = require("../../lib/.github/common");
 const reviewKeywords = "@bot ready for review";
 
 // todo should become class params
