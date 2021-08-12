@@ -58,6 +58,7 @@ async function run() {
         }
     } else { 
         if (hasLabel(prLabels, "s.Ongoing")) {
+            core.info(github.context.eventName);
             core.info("PR has the ongoing label, exiting...")
             return;
         } else if (hasLabel(prLabels, "s.ToReview")) {
