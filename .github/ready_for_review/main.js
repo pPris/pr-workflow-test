@@ -8,7 +8,6 @@ const reviewKeywords = "@bot ready for review";
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
-
 core.info("Octokit has been set up");
 
 // params to set
@@ -57,7 +56,7 @@ async function validate() {
     const sha = await getPRHeadShaForIssueNumber(issueNum);
 
     const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(sha);
-    logInfo(checksRunSuccessfully, "checksRunSuccessfully");
+    log.info(checksRunSuccessfully, "checksRunSuccessfully");
 
     if (!checksRunSuccessfully) {
         await postComment(errMessage);
@@ -71,16 +70,6 @@ async function validate() {
 function validatePRStatus() {
     core.warning("no pr validation has been set");
     return true;
-}
-
-function logInfo(msg, label) {
-    core.info(`${label}: ${msg}`);
-}
-
-function logJson(string, label) {
-    // logInfo(JSON.stringify(string), label);
-    core.info(`${label}: `);
-    core.info(JSON.stringify(string));
 }
 
 run();

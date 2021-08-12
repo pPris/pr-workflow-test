@@ -14,6 +14,3 @@ jobs:
         uses: ./.github/handle_pr_marked_ready_for_review
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
-
-
-# so when people open a pull request, bot should check if checks are passing, and if so link them up?
