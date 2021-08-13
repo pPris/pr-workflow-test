@@ -37,6 +37,8 @@ const issue_number = github.context.issue.number;
 
 
 async function run() {
+    if (!(await isPRMarkedReadyForReview())) return; // needed because synchronise event triggers this workflow 
+
     const prLabels : string[] = await octokit.rest.issues.get({
         owner,
         repo, 
@@ -69,6 +71,10 @@ async function run() {
         }
     }
 }
+
+run();
+
+///// HELPER FUNCTIONS /////
 
 function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
     return arrayOfLabels.findIndex(l => l ===label) !== -1;
@@ -127,4 +133,16 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
     return !!checksFailedComment;
 }
 
-run();
+
+async function isPRMarkedReadyForReview() {
+    return await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number: issue_number,
+    })
+    .then(res => {
+        log.info(res.data.draft, `is pr ${issue_number} draft`)
+        return !res.data.draft;
+    })
+    .catch(err => {log.info(err, "error getting pr that triggered this workflow"); throw err;});
+}

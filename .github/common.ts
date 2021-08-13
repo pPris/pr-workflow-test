@@ -16,7 +16,8 @@ const actor = github.context.actor;
 // todo might not be needed
 const excludedChecksNames = {
     "Handle PRs that may be drafts": 1, 
-    "Handle PR that may be ready for review": 1};
+    "Handle PR that may be ready for review": 1
+};
 
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp : string) {
@@ -88,8 +89,7 @@ export async function sleep(ms) {
 }
 
 ////// things to help with logging //////
-// these functions log using the core module but with the format "label: thingToLog"
-
+/* these functions log using the core module but with the format "label: thingToLog". They also return the variable being logged for convenience */
 export const log = {info: logInfo, warn: logWarn, jsonInfo: jsonInfo};
 
 function logInfo(toPrint, label) {
@@ -169,8 +169,6 @@ export async function validateChecks(validateForRef : string) : Promise<{ didChe
     let conclusionsDetails = ""; 
     
     listChecks.data.check_runs.forEach(checkRun => {
-        log.info(conclusionsDetails, "current") // todo del
-        
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n` 
         } else {

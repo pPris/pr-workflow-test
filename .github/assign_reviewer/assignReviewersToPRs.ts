@@ -35,8 +35,6 @@ export async function findPRsAndAssignReviewers() {
         const issue_number = pr.number;
         core.info(`Checking if it's time to auto assign reviewers to PR ${issue_number}...`);
 
-        // todo should i check if checks are still passing and add a precautionary message
-
         // check if its time to auto assign 
         const tooSoon = await wasToReviewLabelAddedInTheLast(hoursBefAutoAssign, pr)
         if (tooSoon) {
@@ -65,7 +63,7 @@ export async function findPRsAndAssignReviewers() {
             issue_number,
             assignees: [assignee]
         })
-        .then(res => {core.info(`Assignee ${assignee} have been assigned to PR ${issue_number}.`); core.info(JSON.stringify(res))}) // todo abstract away 
+        .then(res => core.info(`Assignee ${assignee} have been assigned to PR ${issue_number} with status ${res.status}.`)) // todo abstract away 
         .catch(err => {throw err}) // should i continue to next pr though?
 
         indexForAssigning = next(indexForAssigning);
