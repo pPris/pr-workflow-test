@@ -21,7 +21,6 @@ const excludedChecksNames = {
     "Handle PR that may be ready for review": 1,
 };
 
-// todo not in use yet
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp: string) {
     isValidTimestamp(sinceTimeStamp);
 
@@ -93,7 +92,7 @@ async function removeLabel(labelName: string) {
         .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
 }
 
-export async function sleep(ms) {
+export async function sleep(ms : number) {
     core.info(`sleeping for ${ms} milliseconds...`);
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -202,17 +201,13 @@ async function validateChecks(
 
 // event payload that triggers this pull request does not contain this info about the PR, so must use rest api again
 async function getPRHeadShaForIssueNumber(pull_number) {
-    const pr = await octokit.rest.pulls
-        .get({
-            owner,
-            repo,
-            pull_number,
-        })
-        .catch(err => {
-            throw err;
-        });
+    const pr = await octokit.rest.pulls.get({
+        owner,
+        repo,
+        pull_number,
+    }).catch(err => {throw err;});
 
     const sha = pr.data.head.sha;
-    log.info(sha, "sha found");
+    log.info(sha, "sha");
     return sha;
 }
