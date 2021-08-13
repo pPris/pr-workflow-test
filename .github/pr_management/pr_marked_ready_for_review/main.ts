@@ -1,6 +1,6 @@
 import core = require("@actions/core");
 import github = require("@actions/github");
-import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead } from "../common";
+import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead, addOngoingLabel } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
@@ -33,14 +33,17 @@ async function run() {
             core.info("Waiting for user to manually state ready to review. exiting...");
         }
     } else { 
-        if (hasLabel(prLabels, "s.ToReview")) {
-            await dropToReviewLabelAndAddOngoing();
-        }
-
         // for prs labelled as ongoing, for all other event types except on synchronise, 
         // we can be sure that the author hasn't been notified of the failing checks by the bot
         if (hasLabel(prLabels, "s.Ongoing") && isOnSynchronise() && await wasAuthorLinkedToFailingChecks()) {
             core.info("PR has the ongoing label and author has been notified, exiting...")
+            return;
+        } 
+        
+        if (hasLabel(prLabels, "s.ToReview")) {
+            await dropToReviewLabelAndAddOngoing();
+        } else if (!hasLabel(prLabels, "s.ToReview") && !hasLabel(prLabels, "s.Ongoing")) {
+            await addOngoingLabel();
         }
 
         await postComment(errMessage + "\n" + furtherInstructions);
