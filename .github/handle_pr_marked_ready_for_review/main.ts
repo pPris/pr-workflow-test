@@ -35,6 +35,10 @@ const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const issue_number = github.context.issue.number;
 
+log.info(github.context.payload.action, "payload action");
+
+const furtherInstructions = "Please comment `@bot ready for review` when you've passed all checks, resolved merge conflicts and are ready to request a review."
+
 
 async function run() {
     if (!(await isPRMarkedReadyForReview())) return; // needed because synchronise event triggers this workflow 
@@ -63,11 +67,11 @@ async function run() {
                 core.info("PR has the ongoing label and author has been warned, exiting...")
                 return;
             } else {
-                await postComment(errMessage);    
+                await postComment(errMessage + "\n" + furtherInstructions);    
             }
         } else if (hasLabel(prLabels, "s.ToReview")) {
             await dropToReviewLabelAndAddOngoing();
-            await postComment(errMessage);
+            await postComment(errMessage + "\n" + furtherInstructions);
         }
     }
 }
