@@ -1,6 +1,6 @@
 on:
   pull_request: 
-    types: [opened, ready_for_review, synchronize] # todo check if sync = fixing merge conflicts will be caught and you can properly label
+    types: [opened, ready_for_review, synchronize]
 
 jobs: 
   handle_new_pr: 
@@ -11,6 +11,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check if a PR is ready to review, checks are passing and assign correct labels
-        uses: ./.github/handle_pr_marked_ready_for_review
+        uses: ./.github/pr_management/pr_marked_ready_for_review
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}

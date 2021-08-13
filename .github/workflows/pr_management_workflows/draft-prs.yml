@@ -4,13 +4,13 @@ on:
 
 jobs: 
   handle_new_pr: 
-    name: Handle PRs that may be drafts
+    name: Handle PR that may be draft
     runs-on: ubuntu-latest
     steps: 
       - name: checkout
         uses: actions/checkout@v2
 
       - name: Check if a PR is a draft and assign label s.Ongoing
-        uses: ./.github/label_draft_pr
+        uses: ./.github/pr_management/pr_marked_draft
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}
