@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { log, postComment, getPRHeadShaForIssueNumber, validateChecksOnPrHead, dropOngoingLabelAndAddToReview } = require("../../lib/.github/common");
+const { log, postComment, getPRHeadShaForIssueNumber, validateChecksOnPrHead, dropOngoingLabelAndAddToReview } = require("../../../lib/.github/common");
 const reviewKeywords = "@bot ready for review";
 
 // params to set
