@@ -1,27 +1,3 @@
-// sketch
-
-/*
-so note that this action can be triggered for a few different events (but pr type is guaranteed not draft). 
-purpose of this action: we just want to ensure that the pr is labelled s.Ongoing or s.ToReview accurately.
-
-steps for this action
-1. get pr in the context & its labels
-2. get the conclusion of completed check suite (wait for completion if necessary)
-
-3ai.  if checks are passing && not labelled s.ToReview nor s.Ongoing yet
-      label s.ToReview
-
-3aii. if checks are passing && has s.Ongoing label
-      do nothing, wait for ready to review comment
-
-3b. if checks are failing && pr has s.ToReview label
-    i. label s.OnGoing
-    ii. comment
-
-3c. if checks are failing && pr has s.Ongoing label
-    do nothing 
-*/
-
 import core = require("@actions/core");
 import github = require("@actions/github");
 import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead } from "../common";
