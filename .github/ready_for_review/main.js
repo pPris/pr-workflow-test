@@ -1,22 +1,16 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const { log, postComment, getPRHeadShaForIssueNumber, validateChecks, dropOngoingLabelAndAddToReview } = require("../../lib/.github/common");
+const { log, postComment, getPRHeadShaForIssueNumber, validateChecksOnPrHead, dropOngoingLabelAndAddToReview } = require("../../lib/.github/common");
 const reviewKeywords = "@bot ready for review";
-
-// todo should become class params
-const token = core.getInput("repo-token");
-const octokit = github.getOctokit(token);
-
-core.info("Octokit has been set up");
 
 // params to set
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
-const owner = github.context.repo.owner;
-const repo = github.context.repo.repo;
-const issueNum = github.context.issue.number;
+const issue_number = github.context.issue.number;
+
+// todo [low] convert to ts
 
 /**
- * this is the main function of this file
+ * This is the main function of this file
  */
 async function run() {
     try {
@@ -50,14 +44,11 @@ function filterCommentBody() {
  * @returns boolean of whether all validation checks 
  */
 async function validate() {
-    if (!validatePRStatus()) return; // todo make sure this action doesn't run on pr's that are closed, or are of certain labels (exclude s.ToReview?)
+    if (!validatePRStatus()) return;
 
-    const sha = await getPRHeadShaForIssueNumber(issueNum);
+    const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
-    const { didChecksRunSuccessfully: checksRunSuccessfully, errMessage } = await validateChecks(sha);
-    log.info(checksRunSuccessfully, "checksRunSuccessfully");
-
-    if (!checksRunSuccessfully) {
+    if (!didChecksRunSuccessfully) {
         await postComment(errMessage);
         return false;
     }
@@ -67,7 +58,8 @@ async function validate() {
 
 
 function validatePRStatus() {
-    core.warning("no pr validation has been set");
+    // nothing stops this github bot from running on comments on closed PRs or PR of specific labels
+    core.warning("No pr validation has been set");
     return true;
 }
 

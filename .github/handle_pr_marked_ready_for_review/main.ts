@@ -24,8 +24,7 @@ steps for this action
 
 import core = require("@actions/core");
 import github = require("@actions/github");
-import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, 
-    postComment, validateChecksOnPrHead } from "../common";
+import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
@@ -37,7 +36,6 @@ const issue_number = github.context.issue.number;
 
 const furtherInstructions = "Please comment `@bot ready for review` when you've passed all checks, resolved merge conflicts and are ready to request a review."
 
-
 async function run() {
     if (!(await isPRMarkedReadyForReview())) return; // needed because synchronise event triggers this workflow on even draft PRs
 
@@ -46,7 +44,6 @@ async function run() {
         repo, 
         issue_number
     })
-    .then(res => {core.info(res.headers["x-ratelimit-remaining"]); return res;})
     .then(res => res.data.labels.map(label => label.name || label)) // label may be of type string instead of an object so need this ||
     .then(l => log.info(l, `labels returned for pr ${issue_number}`))
     .catch(err => {core.info(err); throw err});
@@ -96,7 +93,6 @@ function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
  */
 async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
     // sort by latest event first, so that we consider the last time that the toReview label was added
-    // todo check if sort order correct
     const sortFn = (a, b) => {
         if (!a.created_at || !b.created_at) return 1; // move back
         return Date.parse(b.created_at) - Date.parse(a.created_at)
@@ -132,7 +128,7 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
         throw err;
     });
 
-    const checksFailedComment = comments.find(c => c.body.search("There were unsuccessful conclusions found"));
+    const checksFailedComment = comments.find(c => c.body.search("There were failing checks found"));
 
     log.info(checksFailedComment, "checksFailedComment");
 
@@ -150,5 +146,5 @@ async function isPRMarkedReadyForReview() {
         log.info(res.data.draft, `is pr ${issue_number} draft`)
         return !res.data.draft;
     })
-    .catch(err => {log.info(err, "error getting pr that triggered this workflow"); throw err;});
+    .catch(err => {log.info(err, "Error getting the pr that triggered this workflow"); throw err;});
 }

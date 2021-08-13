@@ -11,8 +11,9 @@ const possibleAssignees = ["ppris", "pizapuzzle"]; // array of people who can be
 const hoursBefAutoAssign = 6;
 
 /*
-will there be any case where bot assigns someone but they unassign themself and don't assign anyone else? then the bot has to pick a new reviewer?
+    will there be any case where bot assigns someone but they unassign themself and don't assign anyone else? then the bot has to pick a new reviewer?
 */
+// slight bug, the bot is supposed to request a review not assign
 
 export async function findPRsAndAssignReviewers() {
     const possiblePRsThatNeedAssignees = await octokit.rest.issues.listForRepo({
@@ -22,14 +23,14 @@ export async function findPRsAndAssignReviewers() {
         labels: "s.ToReview",
         assignee: "none",
         sort: "updated", // in case operation times out, focus on doing the latest PRs that may not have been seen first
-        direction: "desc"
+        direction: "desc",
     })
     .then(res => {core.info("Note that these PRs may need reviewers\n" + JSON.stringify(res)); return res.data;}) // return the array of PRs
     .catch(err => { core.info(err); throw err })
 
     // assign PRs starting from a random person in the array, and for the next PR move on to the next index
     let indexForAssigning : number = getStartIndexForAssigning();
-    core.info("index: " + indexForAssigning)
+    core.info("index: " + indexForAssigning) // todo - change to debug
 
     for (const pr of possiblePRsThatNeedAssignees) {
         const issue_number = pr.number;
@@ -42,19 +43,10 @@ export async function findPRsAndAssignReviewers() {
             continue;
         } 
 
-        // todo check if review comments have been given since last s.toReview so you don't need to assign? (though im guessing the label should have been changed to s.Ongoing --> unless you have to assign it)
+        // todo check if review comments have been given since last s.toReview so you don't need to assign
         // https://octokit.github.io/rest.js/v18#pulls-list-review-comments
 
         const assignee : string = possibleAssignees[indexForAssigning];
-
-        // don't want to cause rate limit so...
-        // if indexChecked < array.length, skip this
-        // if can't be assigned, unshift
-        // const canBeAssigned = await octokit.rest.issues.checkUserCanBeAssigned({
-        //     owner,
-        //     repo,
-        //     assignee,
-        // }).then
 
         // *NOTE: Only users with push access can add assignees to an issue. Assignees are silently ignored otherwise.
         await octokit.rest.issues.addAssignees({
@@ -64,10 +56,10 @@ export async function findPRsAndAssignReviewers() {
             assignees: [assignee]
         })
         .then(res => core.info(`Assignee ${assignee} have been assigned to PR ${issue_number} with status ${res.status}.`)) // todo abstract away 
-        .catch(err => {throw err}) // should i continue to next pr though?
+        .catch(err => core.error(err)) 
 
         indexForAssigning = next(indexForAssigning);
-        core.info("next index: " + indexForAssigning)
+        core.info("next index: " + indexForAssigning) // todo - change to debug
     };
 }
 

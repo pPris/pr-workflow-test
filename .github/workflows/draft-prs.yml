@@ -4,7 +4,7 @@ on:
 
 jobs: 
   handle_new_pr: 
-    name: Handle PRs that may be drafts
+    name: Handle PR that may be draft
     runs-on: ubuntu-latest
     steps: 
       - name: checkout

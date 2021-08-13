@@ -1,6 +1,6 @@
 on:
   pull_request: 
-    types: [opened, ready_for_review, synchronize] # todo check if sync = fixing merge conflicts will be caught and you can properly label
+    types: [opened, ready_for_review, synchronize]
 
 jobs: 
   handle_new_pr: 

@@ -1,6 +1,6 @@
 name: "Workflow for responding to \"ready for review\" comment"
 
-description: "adds correct label to a pr when somoene comments ready for review"
+description: "Adds correct label to a pr when someone comments that it's ready for review."
 
 inputs:
     repo-token:
@@ -10,6 +10,3 @@ inputs:
 runs:
     using: "node12"
     main: "main.js"
-
-
-# todo this folder should become obsolete
