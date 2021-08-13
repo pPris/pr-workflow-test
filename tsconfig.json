@@ -9,6 +9,6 @@
       "esModuleInterop": true,                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
       //"sourceMap": true
     },
-    "include": ["./.github/*/*.ts", ".github/pr_management/common.ts"],
+    "include": ["./.github/pr_management/*/*.ts", ".github/pr_management/common.ts"],
     "exclude": ["./node_modules"]
   }
