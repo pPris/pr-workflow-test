@@ -37,7 +37,6 @@ const issue_number = github.context.issue.number;
 
 
 async function run() {
-    // get pr
     const prLabels : string[] = await octokit.rest.issues.get({
         owner,
         repo, 
@@ -58,9 +57,12 @@ async function run() {
         }
     } else { 
         if (hasLabel(prLabels, "s.Ongoing")) {
-            core.info(github.context.eventName);
-            core.info("PR has the ongoing label, exiting...")
-            return;
+            if (await wasAuthorLinkedToFailingChecks()) {
+                core.info("PR has the ongoing label and author has been warned, exiting...")
+                return;
+            } else {
+                await postComment(errMessage);    
+            }
         } else if (hasLabel(prLabels, "s.ToReview")) {
             await dropToReviewLabelAndAddOngoing();
             await postComment(errMessage);
@@ -70,6 +72,59 @@ async function run() {
 
 function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
     return arrayOfLabels.findIndex(l => l ===label) !== -1;
+}
+
+/**
+ * Checks if the bot did post a comment notifying the author of failing checks, from the last time the s.Ongoing label was applied.
+ * This function is necessary for this case: 
+ * A draft pr has an ongoing label -> author converts to ready for review but there's failing checks. The bot should comment once (i think).
+ * 
+ * There are two rest requests in this function itself, and this file is ran at every commit
+ * todo improvement: run this check only once in a while on PRs marked ongoing
+ */
+async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
+    // sort by latest event first, so that we consider the last time that the toReview label was added
+    // todo check if sort order correct
+    const sortFn = (a, b) => {
+        if (!a.created_at || !b.created_at) return 1; // move back
+        return Date.parse(b.created_at) - Date.parse(a.created_at)
+    }
+
+    // get an array of events for the current issue (https://octokit.github.io/rest.js/v18#issues-list-events)
+    const events = await octokit.rest.issues.listEvents({
+        owner,
+        repo,
+        issue_number,
+    })
+    .then(res => res.data.sort(sortFn))
+    .catch(err => {
+        throw err;
+    });
+    
+    const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == "s.Ongoing");
+
+    if (!labelEvent) {
+        core.warning("Some wrong assumption may have been made or the API used to fetch the PRs may have changed. This function should have been called only on PRs that are assigned the label.")
+        return true; // skip adding a comment 
+    }
+
+    // // get an array of events for the current issue (https://octokit.github.io/rest.js/v18#issues-list-events)
+    const comments = await octokit.rest.issues.listComments({
+        owner,
+        repo,
+        issue_number,
+        since: labelEvent.created_at
+    })
+    .then(res => res.data.sort(sortFn))
+    .catch(err => {
+        throw err;
+    });
+
+    const checksFailedComment = comments.find(c => c.body.search("There were unsuccessful conclusions found"));
+
+    log.info(checksFailedComment, "checksFailedComment");
+
+    return !!checksFailedComment;
 }
 
 run();
