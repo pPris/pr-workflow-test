@@ -11,6 +11,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check if a PR is a draft and assign label s.Ongoing
-        uses: ./.github/label_draft_pr
+        uses: ./.github/pr_management/draft_pr
         with:
           repo-token: ${{secrets.GITHUB_TOKEN}}

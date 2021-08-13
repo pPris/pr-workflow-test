@@ -12,6 +12,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Check if ready for review was commented on PR
-        uses: ./.github/ready_for_review 
+        uses: ./.github/pr_management/ready_for_review 
         with: 
           repo-token: ${{secrets.GITHUB_TOKEN}}
