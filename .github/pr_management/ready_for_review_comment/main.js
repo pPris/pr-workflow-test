@@ -3,11 +3,9 @@ const github = require("@actions/github");
 const { log, postComment, getPRHeadShaForIssueNumber, validateChecksOnPrHead, dropOngoingLabelAndAddToReview } = require("../../../lib/.github/pr_management/common");
 const reviewKeywords = "@bot ready for review";
 
-// params to set
+// params to set for api requests
 // check https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts to figure out what's being responded
 const issue_number = github.context.issue.number;
-
-// todo [low] convert to ts
 
 /**
  * This is the main function of this file
@@ -49,7 +47,7 @@ async function validate() {
     const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
     if (!didChecksRunSuccessfully) {
-        await postComment(errMessage);
+        await postComment(`${errMessage}\n Please comment \`${reviewKeywords}\` when you're ready to request a review again.`);
         return false;
     }
 

@@ -1,6 +1,7 @@
 on: 
-  issue_comment: 
-  # reference https://docs.github.com/en/actions/reference/events-that-trigger-workflows#issue_comment
+  issue_comment: # reference https://docs.github.com/en/actions/reference/events-that-trigger-workflows#issue_comment
+    types:
+      - created
 
 jobs: 
   pr_commented: 

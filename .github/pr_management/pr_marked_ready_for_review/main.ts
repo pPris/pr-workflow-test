@@ -5,7 +5,7 @@ import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, val
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
-// params to set
+// params to set for api requests
 const owner = github.context.repo.owner; 
 const repo = github.context.repo.repo;
 const issue_number = github.context.issue.number;
