@@ -142,7 +142,7 @@ function logWarn(toPrint, label) {
 function postComment(message) {
     return __awaiter(this, void 0, void 0, function* () {
         const commentBody = `Hi ${actor}, please note the following. ${message}`;
-        const comment = yield octokit.rest.issues.createComment({
+        yield octokit.rest.issues.createComment({
             owner,
             repo,
             issue_number,
