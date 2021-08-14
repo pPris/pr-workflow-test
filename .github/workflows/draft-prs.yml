@@ -7,6 +7,9 @@ jobs:
     name: Handle PR that may be draft
     runs-on: ubuntu-latest
     steps: 
+      - run: npm i 
+
+
       - name: checkout
         uses: actions/checkout@v2
 
