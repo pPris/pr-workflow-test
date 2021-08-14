@@ -8,6 +8,5 @@
       "noImplicitAny": true,
       "esModuleInterop": true,
     },
-    "include": ["./pr_management/*/*.ts", "./pr_management/common.ts"],
-    // "exclude": ["./node_modules"]
+    "include": ["./pr_management/*/*.ts", "./pr_management/common.ts"]
   }
