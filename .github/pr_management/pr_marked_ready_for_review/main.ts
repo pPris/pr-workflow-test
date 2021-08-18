@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead, addOngoingLabel, dropOngoingLabel } from "../common";
+import { log, dropToReviewLabelAndAddOngoing, addToReviewLabel, postComment, validateChecksOnPrHead, addOngoingLabel, dropOngoingLabel, toReviewLabel, ongoingLabel } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
@@ -30,19 +30,20 @@ async function run() {
     const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
     if (didChecksRunSuccessfully) {
-        if (hasLabel(prLabels, "s.ToReview")) {
+        if (hasToReviewLabel(prLabels)) {
             core.info("already has review label and checks are passing, nothing to be done here. exiting...")
             return;
         }
 
-        if (hasLabel(prLabels, "s.Ongoing") && isOnSynchronise()) {
+        // ongoing and ready-for-review prs mean that user was previously told to state when it's ready for review
+        if (hasOngoingLabel(prLabels) && isOnSynchronise()) {
             core.info("Waiting for user to manually state ready to review. exiting...");
             return;
         }
 
         // if checks pass on 'pr open' event, or on 'convert to ready for review' event, 
         // then add review label (and drop ongoing if it exists)
-        if (hasLabel(prLabels, "s.Ongoing")) { 
+        if (hasOngoingLabel(prLabels)) { 
             await dropOngoingLabel();
         }
 
@@ -51,14 +52,14 @@ async function run() {
     } else { 
         // for prs labelled as ongoing, for all other event types except on synchronise, 
         // we can be sure that the author hasn't been notified of the failing checks by the bot
-        if (hasLabel(prLabels, "s.Ongoing") && isOnSynchronise() && await wasAuthorLinkedToFailingChecks()) {
+        if (hasOngoingLabel(prLabels) && isOnSynchronise() && await wasAuthorLinkedToFailingChecks()) {
             core.info("PR has the ongoing label and author has been notified, exiting...")
             return;
         } 
         
-        if (hasLabel(prLabels, "s.ToReview")) {
+        if (hasToReviewLabel(prLabels)) {
             await dropToReviewLabelAndAddOngoing();
-        } else if (!hasLabel(prLabels, "s.ToReview") && !hasLabel(prLabels, "s.Ongoing")) {
+        } else if (!hasToReviewLabel(prLabels) && !hasOngoingLabel(prLabels)) {
             await addOngoingLabel();
         }
 
@@ -75,8 +76,16 @@ function isOnSynchronise() {
     return github.context.payload.action === "synchronize";
 }
 
-function hasLabel(arrayOfLabels : Array<string>,  label) : boolean{
+function hasLabel(arrayOfLabels : Array<string>,  label : string) : boolean{
     return arrayOfLabels.findIndex(l => l ===label) !== -1;
+}
+
+function hasOngoingLabel(arrayOfLabels : Array<string>) {
+    return hasLabel(arrayOfLabels, ongoingLabel);
+}
+
+function hasToReviewLabel(arrayOfLabels : Array<string>) {
+    return hasLabel(arrayOfLabels, toReviewLabel);
 }
 
 /**
@@ -104,7 +113,7 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
         throw err;
     });
     
-    const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == "s.Ongoing");
+    const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == ongoingLabel);
 
     if (!labelEvent) {
         core.warning("Some wrong assumption may have been made or the API used to fetch the PRs may have changed. This function should have been called only on PRs that are assigned the label.")

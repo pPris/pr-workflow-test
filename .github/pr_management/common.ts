@@ -11,6 +11,9 @@ const repo = github.context.repo.repo;
 const issue_number = github.context.issue.number;
 const actor = github.context.actor;
 
+export const ongoingLabel = "s.Ongoing";
+export const toReviewLabel = "s.toReview";
+
 //// variables to configure
 // todo change in teammates
 const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000; // min * sec * ms
@@ -53,25 +56,25 @@ function isValidTimestamp(sinceTimeStamp: string) {
 //// abstractions for adding and dropping labels
 
 export async function addOngoingLabel() {
-    await addLabel("s.Ongoing");
+    await addLabel(ongoingLabel);
 }
 
 export async function addToReviewLabel() {
-    await addLabel("s.ToReview");
+    await addLabel(toReviewLabel);
 }
 
 export async function dropOngoingLabelAndAddToReview() {
-    await removeLabel("s.Ongoing");
-    await addLabel("s.ToReview");
+    await removeLabel(ongoingLabel);
+    await addLabel(toReviewLabel);
 }
 
 export async function dropToReviewLabelAndAddOngoing() {
-    await removeLabel("s.ToReview");
-    await addLabel("s.Ongoing");
+    await removeLabel(toReviewLabel);
+    await addLabel(ongoingLabel);
 }
 
 export async function dropOngoingLabel() {
-    await removeLabel("s.Ongoing");
+    await removeLabel(ongoingLabel);
 }
 
 async function addLabel(labelName: string) {

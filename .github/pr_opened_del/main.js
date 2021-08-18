@@ -35,7 +35,7 @@ async function run() {
             owner: _owner,
             repo: _repo,
             issue_number: _issue_num,
-            labels: ["s.Ongoing"]
+            labels: [ongoingLabel]
         })
 
         core.info("label has been added");

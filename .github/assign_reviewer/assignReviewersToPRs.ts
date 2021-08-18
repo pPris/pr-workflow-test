@@ -6,6 +6,8 @@ const octokit = github.getOctokit(token);
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 
+import { toReviewLabel } from "../common";
+
 //* to change in production
 const possibleAssignees = ["ppris", "pizapuzzle"]; // array of people who can be assigned 
 const hoursBefAutoAssign = 6;
@@ -20,7 +22,7 @@ export async function findPRsAndAssignReviewers() {
         owner,
         repo,
         state: "open",
-        labels: "s.ToReview",
+        labels: toReviewLabel,
         assignee: "none",
         sort: "updated", // in case operation times out, focus on doing the latest PRs that may not have been seen first
         direction: "desc",
@@ -97,7 +99,7 @@ export async function findPRsAndAssignReviewers() {
     events.forEach(x => console.log(`${x.event} ${x.created_at}`));
     console.log("================")
     
-    const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == "s.ToReview") ;
+    const labelEvent = events.find(e => e.event === "labeled" && e.label?.name == toReviewLabel) ;
 
     if (!labelEvent) {
         core.warning("Some wrong assumption may have been made or the API used to fetch the PRs may have changed. This function should have been called only on PRs that are assigned the label.")
