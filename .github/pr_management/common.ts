@@ -16,7 +16,7 @@ export const toReviewLabel = "s.ToReview";
 
 //// variables to configure
 // @todo change in teammates
-const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000; // min * sec * ms
+const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
 
 /* this list of names of excluded checks is to prevent cyclical checking when checking for passing runs. 
 note: each string needs to match the jobs.<id>.name property in yaml files */ 
