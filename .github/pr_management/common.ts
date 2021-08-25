@@ -12,7 +12,7 @@ const issue_number = github.context.issue.number;
 const actor = github.context.actor;
 
 export const ongoingLabel = "s.Ongoing";
-export const toReviewLabel = "s.toReview";
+export const toReviewLabel = "s.ToReview";
 
 //// variables to configure
 // @todo change in teammates
