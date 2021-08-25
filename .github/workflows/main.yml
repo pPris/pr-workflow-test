@@ -19,4 +19,11 @@ jobs:
       # Use the output from the `hello` step
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.time }}"
+
+      - name: Sleep for 12 mins
+        run: sleep 12m 
+        shell: bash
+
+      - name: Get the output time
+        run: echo "end"
         
