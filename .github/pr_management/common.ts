@@ -123,7 +123,7 @@ function logWarn(toPrint, label) {
 
 //// comments related functions
 export async function postComment(message) {
-    const commentBody = `Hi ${actor}, please note the following. ${message}`;
+    const commentBody = `Hi @${actor}, please note the following. ${message}`;
 
     await octokit.rest.issues.createComment({
         owner,
