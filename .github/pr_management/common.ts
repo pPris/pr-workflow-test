@@ -185,7 +185,7 @@ async function validateChecks(validateForRef: string)
 
     listChecks.data.check_runs.forEach(checkRun => {
         if (checkRun.status !== "completed") {
-            conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found the excluded checks list\n`;
+            conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found in the excluded checks list\n`;
         } else {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }
