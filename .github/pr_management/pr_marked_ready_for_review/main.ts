@@ -13,9 +13,6 @@ const issue_number = github.context.issue.number;
 const furtherInstructions = "Please comment `@bot ready for review` when you've passed all checks, resolved merge conflicts and are ready to request a review."
 
 async function run() {
-    log.info(github.context.action, "action");
-    log.info(github.context.payload.action, "payload action");
-    
     if (!(await isPRMarkedReadyForReview())) return; // needed because synchronise event triggers this workflow on even draft PRs
 
     const prLabels : string[] = await octokit.rest.issues.get({
