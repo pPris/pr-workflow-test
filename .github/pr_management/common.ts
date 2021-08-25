@@ -15,39 +15,37 @@ export const ongoingLabel = "s.Ongoing";
 export const toReviewLabel = "s.toReview";
 
 //// variables to configure
-// todo change in teammates
+// @todo change in teammates
 const usualTimeForChecksToRun = 5000; // 20 * 60 * 1000; // min * sec * ms
 
-// to prevent cyclical checking when checking for passing runs. note: needs to match names assigned by workflow files
+/* this list of names of excluded checks is to prevent cyclical checking when checking for passing runs. 
+note: each string needs to match the jobs.<id>.name property in yaml files */ 
 const excludedChecksNames = {
     "Handle PR that may be draft": 1,
     "Handle PR that may be ready for review": 1,
 };
 
 export async function wereReviewCommentsAdded(pr, sinceTimeStamp: string) {
-    isValidTimestamp(sinceTimeStamp);
+    validateTimeStamp(sinceTimeStamp);
 
-    const comments = await octokit.rest.pulls
-        .listReviewComments({
-            owner,
-            repo,
-            pull_number: pr.number,
-            since: sinceTimeStamp, // todo unsure if this works as expected --> test
-        })
-        .then(res => {
-            core.info("these comments were retrieved\n" + res);
-            return res;
-        })
-        .catch(err => {
-            throw err;
-        });
+    const comments = await octokit.rest.pulls.listReviewComments({
+        owner,
+        repo,
+        pull_number: pr.number,
+        since: sinceTimeStamp, 
+    }).then(res => {
+        core.info("these comments were retrieved\n" + res);
+        return res;
+    }).catch(err => {
+        throw err;
+    });
 
     return comments.data.length > 0;
 }
 
-function isValidTimestamp(sinceTimeStamp: string) {
+function validateTimeStamp(timeStamp: string) {
     try {
-        Date.parse(sinceTimeStamp);
+        Date.parse(timeStamp);
     } catch (err) {
         throw new Error(`the sinceTimeStamp argument passed is an invalid timestamp`);
     }
@@ -90,15 +88,14 @@ async function addLabel(labelName: string) {
 }
 
 async function removeLabel(labelName: string) {
-    await octokit.rest.issues
-        .removeLabel({
-            owner,
-            repo,
-            issue_number,
-            name: labelName, // todo check if this works
-        })
-        .then(res => logInfo(res.status, `removing label ${res.status} with status`))
-        .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
+    await octokit.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number,
+        name: labelName,
+    })
+    .then(res => logInfo(res.status, `removing label ${res.status} with status`))
+    .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
 }
 
 export async function sleep(ms : number) {
@@ -124,7 +121,7 @@ function logWarn(toPrint, label) {
     core.warning(`${label}: ${toPrint}`);
 }
 
-//// comments
+//// comments related functions
 export async function postComment(message) {
     const commentBody = `Hi ${actor}, please note the following. ${message}`;
 
@@ -138,16 +135,15 @@ export async function postComment(message) {
     .catch(err => core.error(err))
 }
 
-//// checks stuff
+//// check runs related functions
 
 export async function validateChecksOnPrHead() {
     const sha = await getPRHeadShaForIssueNumber(issue_number);
     return await validateChecks(sha);
 }
 
-async function validateChecks(
-    validateForRef: string
-): Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
+async function validateChecks(validateForRef: string)
+: Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
 
     core.info(`validating checks on ref: ${validateForRef}...`);
 
@@ -166,7 +162,6 @@ async function validateChecks(
         // array of check runs, may include the workflow that is running the current file
         const checkRunsArr = listChecks.data.check_runs;
 
-        // todo [low] change to core.debug
         checkRunsArr.forEach(checkRun => {
             core.info(`current status for "${checkRun.name}": ${checkRun.status}`);
         });

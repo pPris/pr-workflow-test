@@ -70,7 +70,7 @@ async function run() {
 run();
 
 ///// HELPER FUNCTIONS /////
-/* did the currently running action get triggered by an on synchronise event */
+// checks if the currently running action get triggered by an on synchronise event
 function isOnSynchronise() {
     log.info(github.context.payload.action, "what triggered this run");
     return github.context.payload.action === "synchronize";
