@@ -26,6 +26,10 @@ async function run() {
 
     const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
+    // todo remove debugging
+    log.info(hasOngoingLabel(prLabels), "hasOngoingLabel");
+    log.info(hasToReviewLabel(prLabels), "hasToReviewLabel");
+
     if (didChecksRunSuccessfully) {
         if (hasToReviewLabel(prLabels)) {
             core.info("already has review label and checks are passing, nothing to be done here. exiting...")
