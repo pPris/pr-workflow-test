@@ -20,7 +20,7 @@ async function run() {
         repo, 
         issue_number
     })
-    .then(res => res.data.labels.map((label: {name: string}) => label.name || label)) // label may be of type string instead of an object so need this ||
+    .then(res => res.data.labels.map((label: {name: string}) => label.name)) 
     .then(l => log.info(l, `labels returned for pr ${issue_number}`))
     .catch(err => {core.info(err); throw err});
 
@@ -74,7 +74,7 @@ function isOnSynchronise() {
 }
 
 function hasLabel(arrayOfLabels : Array<string>,  label : string) : boolean{
-    return arrayOfLabels.findIndex(l => l ===label) !== -1;
+    return arrayOfLabels.findIndex(l => l === label) !== -1;
 }
 
 function hasOngoingLabel(arrayOfLabels : Array<string>) {
