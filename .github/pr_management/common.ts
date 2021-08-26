@@ -17,14 +17,16 @@ export const toReviewLabel = "s.ToReview";
 //// variables to configure
 const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
 
-/* this list of names of excluded checks is to prevent cyclical checking when checking for passing runs. 
+/* this list of names of excluded checks is to prevent cyclical checking when checking for workflow statuses. 
 note: each string needs to match the jobs.<id>.name property in yaml files */ 
 const draftPr = "Handle PR that may be draft";
 const readyForReviewPr = "Handle PR that may be ready for review";
+const issueComment = "PR Comment";
 
 const excludedChecksNames = [
     draftPr,
-    readyForReviewPr
+    readyForReviewPr,
+    issueComment
 ];
 
 //// abstractions for adding and dropping labels
@@ -127,19 +129,21 @@ async function validateChecks(validateForRef: string)
     core.info(`validating checks on ref: ${validateForRef}...`);
 
     let areChecksOngoing = true;
-    let listChecks;
+    let checkRunsArr;
 
     // wait for the checks to complete before proceeding
     while (areChecksOngoing) {
         // https://octokit.github.io/rest.js/v18#checks-list-for-ref
-        listChecks = await octokit.rest.checks.listForRef({
+        checkRunsArr = await octokit.rest.checks.listForRef({
             owner,
             repo,
             ref: validateForRef,
-        });
-
-        // array of check runs, may include the workflow that is running the current file
-        const checkRunsArr = listChecks.data.check_runs;
+        })
+        .then(res => {
+            core.info(`received the list of checks with response ${res.status}`);
+            return res.data.check_runs;
+        })
+        .catch(err => {throw err});
 
         checkRunsArr.forEach(checkRun => {
             core.info(`current status for "${checkRun.name}": ${checkRun.status}`);
@@ -158,12 +162,10 @@ async function validateChecks(validateForRef: string)
         areChecksOngoing = false;
     }
 
-    const checkRunsArr = listChecks.data.check_runs;
-
     // format the conclusions of the check runs
     let conclusionsDetails = "";
 
-    listChecks.data.check_runs.forEach(checkRun => {
+    checkRunsArr.forEach(checkRun => {
         if (checkRun.status !== "completed") {
             conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found in the excluded checks list\n`;
         } else {
@@ -182,7 +184,7 @@ async function validateChecks(validateForRef: string)
     return { didChecksRunSuccessfully, errMessage };
 }
 
-// event payload that triggers this pull request does not contain this info about the PR, so must use rest api again
+// when event payload that triggers this pull request does not contain sha info about the PR, this function can be used
 async function getPRHeadShaForIssueNumber(pull_number) {
     const pr = await octokit.rest.pulls.get({
         owner,
@@ -191,6 +193,7 @@ async function getPRHeadShaForIssueNumber(pull_number) {
     }).catch(err => {throw err;});
 
     const sha = pr.data.head.sha;
-    log.info(sha, "sha");
+    core.info(`PR head sha obtained for pr #${pull_number}: ${sha}`)
+
     return sha;
 }
