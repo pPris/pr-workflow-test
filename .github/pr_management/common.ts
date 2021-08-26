@@ -120,7 +120,7 @@ export async function validateChecksOnPrHead() {
 }
 
 function doesArrInclude(arr : Array<any>, element) : boolean {
-    return arr.findIndex(x => x === element) === -1;
+    return arr.findIndex(x => x == element) !== -1;
 }
 
 async function validateChecks(validateForRef: string)
