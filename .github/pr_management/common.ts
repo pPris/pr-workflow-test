@@ -25,32 +25,6 @@ const excludedChecksNames = {
     "Handle PR that may be ready for review": 1,
 };
 
-export async function wereReviewCommentsAdded(pr, sinceTimeStamp: string) {
-    validateTimeStamp(sinceTimeStamp);
-
-    const comments = await octokit.rest.pulls.listReviewComments({
-        owner,
-        repo,
-        pull_number: pr.number,
-        since: sinceTimeStamp, 
-    }).then(res => {
-        core.info("these comments were retrieved\n" + res);
-        return res;
-    }).catch(err => {
-        throw err;
-    });
-
-    return comments.data.length > 0;
-}
-
-function validateTimeStamp(timeStamp: string) {
-    try {
-        Date.parse(timeStamp);
-    } catch (err) {
-        throw new Error(`the sinceTimeStamp argument passed is an invalid timestamp`);
-    }
-}
-
 //// abstractions for adding and dropping labels
 
 export async function addOngoingLabel() {
