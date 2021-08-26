@@ -15,15 +15,17 @@ export const ongoingLabel = "s.Ongoing";
 export const toReviewLabel = "s.ToReview";
 
 //// variables to configure
-// @todo change in teammates
 const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
 
 /* this list of names of excluded checks is to prevent cyclical checking when checking for passing runs. 
 note: each string needs to match the jobs.<id>.name property in yaml files */ 
-const excludedChecksNames = {
-    "Handle PR that may be draft": 1,
-    "Handle PR that may be ready for review": 1,
-};
+const draftPr = "Handle PR that may be draft";
+const readyForReviewPr = "Handle PR that may be ready for review";
+
+const excludedChecksNames = [
+    draftPr,
+    readyForReviewPr
+];
 
 //// abstractions for adding and dropping labels
 
@@ -50,15 +52,14 @@ export async function dropOngoingLabel() {
 }
 
 async function addLabel(labelName: string) {
-    await octokit.rest.issues
-        .addLabels({
-            owner,
-            repo,
-            issue_number,
-            labels: [labelName],
-        })
-        .then(res => log.info(res.status, `added ${labelName} label with status`))
-        .catch(err => log.info(err, "error adding label"));
+    await octokit.rest.issues.addLabels({
+        owner,
+        repo,
+        issue_number,
+        labels: [labelName],
+    })
+    .then(res => log.info(res.status, `added ${labelName} label with status`))
+    .catch(err => log.info(err, "error adding label"));
 }
 
 async function removeLabel(labelName: string) {
@@ -116,6 +117,10 @@ export async function validateChecksOnPrHead() {
     return await validateChecks(sha);
 }
 
+function doesArrInclude(arr : Array<any>, element) : boolean {
+    return arr.findIndex(element) === -1;
+}
+
 async function validateChecks(validateForRef: string)
 : Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
 
@@ -142,8 +147,9 @@ async function validateChecks(validateForRef: string)
 
         // find checks that are not completed and sleep while waiting for completion
         const res = checkRunsArr.find(
-            checkRun => checkRun.status !== "completed" && !(checkRun.name in excludedChecksNames)
+            checkRun => checkRun.status !== "completed" && !(doesArrInclude(excludedChecksNames, checkRun.name))
         );
+        
         if (res !== undefined) {
             await sleep(usualTimeForChecksToRun);
             continue;
@@ -166,7 +172,7 @@ async function validateChecks(validateForRef: string)
     });
 
     const didChecksRunSuccessfully = !checkRunsArr.find(
-        checkRun => checkRun.conclusion !== "success" && !(checkRun.name in excludedChecksNames)
+        checkRun => checkRun.conclusion !== "success" && !(doesArrInclude(excludedChecksNames, checkRun.name))
     );
     const errMessage = `There were failing checks found. \n${conclusionsDetails}`;
 
