@@ -98,7 +98,7 @@ export async function postComment(message) {
         issue_number,
         body: commentBody,
     })
-    .then(res => core.info(`Commented:\n ${res.data.body}\n with status ${res.status}`))
+    .then(res => core.info(`Commented:\n${res.data.body}\n with status ${res.status}`))
     .catch(err => core.error(err))
 }
 
