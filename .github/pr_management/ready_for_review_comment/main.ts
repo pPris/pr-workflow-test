@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-const { log, postComment, validateChecksOnPrHead, dropOngoingLabelAndAddToReview } = require("../../lib/pr_management/common");
+import { log, postComment, validateChecksOnPrHead, dropOngoingLabel, addAppropriateReviewLabel } from "../common"
 const reviewKeywords = "@bot ready for review";
 
 // params to set for api requests
@@ -16,10 +16,11 @@ async function run() {
         const doesCommentContainKeywords = filterCommentBody();
         if (!doesCommentContainKeywords) return;
 
-        const valid = await validate();
+        const valid : boolean = await validate();
         if (!valid) return;
 
-        await dropOngoingLabelAndAddToReview();
+        await dropOngoingLabel();
+        await addAppropriateReviewLabel();
     } catch (ex) {
         core.info(ex);
         core.setFailed(ex.message);
@@ -27,12 +28,12 @@ async function run() {
 }
 
 // return if comment body has the exact keywords
-function filterCommentBody() {
+function filterCommentBody() : boolean {
     const issueComment = github.context.payload.comment.body;
     const hasKeywords = issueComment.search(reviewKeywords) !== -1;
 
     core.info(`issueComment: ${issueComment}`);
-    core.info(`keywords found in issue? ${hasKeywords}`);
+    core.info(`were keywords found in issue? ${hasKeywords}`);
 
     return hasKeywords;
 }
@@ -41,7 +42,7 @@ function filterCommentBody() {
  * Wrapper function for all validation related checks. If any fail, this function handles adding the comment 
  * @returns boolean of whether all validation checks 
  */
-async function validate() {
+async function validate() : Promise<boolean> {
     if (!validatePRStatus()) return;
 
     const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
