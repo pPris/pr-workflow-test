@@ -18,6 +18,8 @@ export const toMergeLabel = "s.ToMerge";
 
 //// variables to configure
 const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
+export const errMessagePreamble = "There were failing checks found.";
+export const reviewKeywords = "PR ready for review";
 
 /* this list of names of excluded checks is to prevent cyclical checking when checking for workflow statuses. 
 note: each string needs to match the jobs.<id>.name property in yaml files */ 
@@ -164,7 +166,8 @@ async function validateChecks(validateForRef: string)
     const didChecksRunSuccessfully = !checkRunsArr.find(
         checkRun => checkRun.conclusion !== "success" && !(doesArrInclude(excludedChecksNames, checkRun.name))
     );
-    const errMessage = `There were failing checks found. \n${conclusionsDetails}`;
+
+    const errMessage = `${errMessagePreamble}\n${conclusionsDetails}`;
 
     log.info(didChecksRunSuccessfully, "didChecksRunSuccessfully");
     log.info(conclusionsDetails, "conclusions of checks\n");
@@ -194,7 +197,8 @@ const sortByLastCreated = (a, b) => {
     return Date.parse(b.created_at) - Date.parse(a.created_at)
 }
 
-/* returns an array of all the events on this issue, sorted in descending order of the created_at property 
+/**
+ * returns an array of all the events on this issue, sorted in descending order of the created_at property 
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */
 export async function getSortedListOfEventsOnIssue() {
@@ -209,7 +213,8 @@ export async function getSortedListOfEventsOnIssue() {
     });
 }
 
-/* returns an array of events for the current issue, sorted in descending order of the created_at property 
+/**
+ * returns an array of events for the current issue, sorted in descending order of the created_at property 
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */ 
 export async function getSortedListOfComments(sinceTimeStamp : string) {
