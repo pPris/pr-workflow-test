@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-import { log, postComment, validateChecksOnPrHead, addOngoingLabel, dropOngoingLabel, toReviewLabel, ongoingLabel, removeLabel, finalReviewLabel, getSortedListOfEventsOnIssue, addLabel, toMergeLabel, getSortedListOfComments } from "../common";
+import { log, postComment, validateChecksOnPrHead, addOngoingLabel, dropOngoingLabel, toReviewLabel, ongoingLabel, removeLabel, finalReviewLabel, getSortedListOfEventsOnIssue, addLabel, toMergeLabel, getSortedListOfComments, addAppropriateReviewLabel } from "../common";
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
@@ -129,29 +129,4 @@ async function isPrDraft() {
         return res.data.draft;
     })
     .catch(err => {log.info(err, "Error getting the pr that triggered this workflow"); throw err;});
-}
-
-
-async function addAppropriateReviewLabel() {
-    const eventsArr = await getSortedListOfEventsOnIssue();
-
-    // if a previous review label was found, re-add that label
-    for (const e of eventsArr) {
-        if (e.event !== "labeled") continue;
-
-        if (e.label?.name == finalReviewLabel) {
-            await addLabel(finalReviewLabel);
-            core.info(`${finalReviewLabel} was the last found review label on this PR, so adding it back.`);
-            return;
-        }
-
-        if (e.label?.name == toReviewLabel) {
-            await addLabel(toReviewLabel);
-            core.info(`${finalReviewLabel} was the last found review label on this PR, so adding it back.`);
-            return;
-        }   
-    };
-
-    // if no previous review label was found, add toReviewLabel
-    await addLabel(toReviewLabel);
 }
