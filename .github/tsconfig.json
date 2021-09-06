@@ -11,7 +11,6 @@
       "checkJs": false,
       "noEmit": true,
       "skipLibCheck": true
-
     },
     "include": ["./pr_management/*/*.ts", "./pr_management/common.ts"],
     // "exclude": ["../node_modules/*"] // only affects files added by include
