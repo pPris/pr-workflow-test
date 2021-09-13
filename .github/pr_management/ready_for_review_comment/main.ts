@@ -68,7 +68,7 @@ async function isValidAuthor() {
 
     core.info(`Author of comment that triggered this workflow: ${commentAuthor}.\n` +
         `Author of pr that this comment was added to: ${prAuthor}.\n`+
-        `Is it a match?${prAuthor === commentAuthor}`)
+        `Is it a match? ${prAuthor === commentAuthor}`)
 
     return prAuthor === commentAuthor;
 }
