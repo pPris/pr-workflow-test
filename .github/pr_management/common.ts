@@ -23,7 +23,7 @@ const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
 export const errMessagePreamble = "There were failing checks found.";
 export const reviewKeywords = "PR ready for review";
 
-/* this list of names of excluded checks is to prevent cyclical checking when checking for workflow statuses. 
+/* this list of names of excluded checks is to prevent infinite waiting while checking for workflow statuses. 
 note: each string needs to match the jobs.<id>.name property in yaml files */ 
 const draftPr = "Handle PR that may be draft";
 const readyForReviewPr = "Handle PR that may be ready for review";

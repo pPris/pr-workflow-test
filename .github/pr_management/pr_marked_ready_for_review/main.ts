@@ -1,30 +1,15 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
 import { postComment, validateChecksOnPrHead, addLabel, removeLabel, ongoingLabel, toReviewLabel, finalReviewLabel, getSortedListOfEventsOnIssue, toMergeLabel, getSortedListOfComments, addAppropriateReviewLabel, errMessagePreamble, reviewKeywords } from "../common";
+import { getCurrentPRDetails, getCurrentPrLabels } from '../githubRequestsManager';
 import { log } from '../logger';
-
-const token = core.getInput("repo-token");
-const octokit = github.getOctokit(token);
-
-// params to set for api requests
-const owner = github.context.repo.owner; 
-const repo = github.context.repo.repo;
-const issue_number = github.context.issue.number;
 
 const furtherInstructions = `Please comment \`${reviewKeywords}\` (case sensitive) when you've passed all checks, resolved merge conflicts and are ready to request a review.`
 
 async function run() {
     if (await isPrDraft()) return; // needed because synchronise event triggers this workflow on even draft PRs
 
-    // TODO move labels 
-    const prLabels : string[] = await octokit.rest.issues.get({
-        owner,
-        repo, 
-        issue_number
-    })
-    .then(res => res.data.labels.map((label: {name: string}) => label.name)) 
-    .then(l => log.info(l, `labels returned for pr ${issue_number}`))
-    .catch(err => {core.info(err); throw err});
+    const prLabels : string[] = await getCurrentPrLabels();
 
     const { didChecksPass: didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
@@ -119,16 +104,9 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
     return !!checksFailedComment;
 }
 
-
+// TODO tbh this is repeated functionality. so should go into the common class?
 async function isPrDraft() {
-    return await octokit.rest.pulls.get({
-        owner,
-        repo,
-        pull_number: issue_number,
-    })
-    .then(res => {
-        log.info(res.data.draft, `is pr ${issue_number} draft`)
-        return res.data.draft;
-    })
-    .catch(err => {log.info(err, "Error getting the pr that triggered this workflow"); throw err;});
+    return await getCurrentPRDetails()
+        .then(pr => pr.draft)
+        .catch(err => {throw err});
 }

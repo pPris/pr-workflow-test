@@ -43,3 +43,18 @@ export async function getListOfChecks(ref : string) { // todo same as above - re
 
     return checkRunsArr;
 }
+
+/**
+ * 
+ * @returns A string array containing the names of the labels that are applied to the current PR
+ */
+ export async function getCurrentPrLabels() : Promise<string[]> {
+    return await octokit.rest.issues.get({
+        owner,
+        repo, 
+        issue_number
+    })
+    .then(res => res.data.labels.map((label: {name: string}) => label.name)) // todo this function flattens the labels i think. not sure if it should be doing it at this level.
+    .then(l => log.info(l, `labels returned for pr ${issue_number}`))
+    .catch(err => {core.info(err); throw err});
+}
