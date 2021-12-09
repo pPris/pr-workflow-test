@@ -1,6 +1,7 @@
+// todo ought to move these dependencies outside? (same for all 3 main.ts)
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-import { postComment, validateChecksOnPrHead, dropOngoingLabel, addAppropriateReviewLabel, reviewKeywords, getCurrentIssue } from "../common"
+import { postComment, validateChecksOnPrHead, removeLabel, ongoingLabel, addAppropriateReviewLabel, reviewKeywords, getCurrentIssue } from "../common"
 
 // params to set for api requests
 // references: https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts 
@@ -17,7 +18,7 @@ async function run() {
         const valid : boolean = await validate();
         if (!valid) return;
 
-        await dropOngoingLabel();
+        await removeLabel(ongoingLabel);;
         await addAppropriateReviewLabel();
     } catch (ex) {
         core.info(ex);
@@ -37,7 +38,7 @@ function filterCommentBody() : boolean {
 }
 
 /**
- * Wrapper function for all validation related checks. If any fail, this function handles adding the comment 
+ * Wrapper function for all validation related logic to perform. If any fail, this function will handle posting a comment.
  * @returns boolean of whether all validation checks 
  */
 async function validate() : Promise<boolean> {
@@ -45,9 +46,9 @@ async function validate() : Promise<boolean> {
 
     if (!await isValidAuthor()) return;
 
-    const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
+    const { didChecksPass, errMessage } = await validateChecksOnPrHead();
 
-    if (!didChecksRunSuccessfully) {
+    if (!didChecksPass) {
         await postComment(`${errMessage}\n Please comment \`${reviewKeywords}\` when you're ready to request a review again.`);
         return false;
     }
@@ -56,11 +57,13 @@ async function validate() : Promise<boolean> {
 }
 
 
-function isValidPRStatus() {
+function isValidPRStatus() { // TODO check: if no validation needed, remove...
     // nothing stops this workflow from running on PRs of specific labels
     core.warning("No pr validation has been set");
     return true;
 }
+
+
 
 async function isValidAuthor() {
     const commentAuthor : string = github.context.payload.comment.user.login; // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment
