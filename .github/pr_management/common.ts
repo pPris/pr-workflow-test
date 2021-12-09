@@ -3,6 +3,8 @@
  */
 import * as core from '@actions/core'
 import * as github from '@actions/github';
+import { getListOfChecks } from './githubRequestsManager';
+import { log } from './logger';
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
@@ -27,6 +29,7 @@ const draftPr = "Handle PR that may be draft";
 const readyForReviewPr = "Handle PR that may be ready for review";
 const issueComment = "PR Comment";
 
+// TODO names of excluded checks
 const excludedChecksNames = [
     draftPr,
     readyForReviewPr,
@@ -34,15 +37,6 @@ const excludedChecksNames = [
 ];
 
 //// abstractions for adding and dropping labels
-
-export async function addOngoingLabel() {
-    await addLabel(ongoingLabel);
-}
-
-export async function dropOngoingLabel() {
-    await removeLabel(ongoingLabel);
-}
-
 export async function addLabel(labelName: string) {
     await octokit.rest.issues.addLabels({
         owner,
@@ -61,8 +55,8 @@ export async function removeLabel(labelName: string) {
         issue_number,
         name: labelName,
     })
-    .then(res => logInfo(res.status, `removing label ${res.status} with status`))
-    .catch(err => logInfo(err, "error removing label (label may not have been applied)"));
+    .then(res => log.info(res.status, `removing label ${res.status} with status`))
+    .catch(err => log.info(err, "error removing label (label may not have been applied)"));
 }
 
 export async function sleep(ms : number) {
@@ -70,26 +64,10 @@ export async function sleep(ms : number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-////// functions to help with logging //////
-/* these functions log using the core module but with the format "label: itemToLog". 
-They also return the variable being logged for convenience */
-export const log = { info: logInfo, warn: logWarn, jsonInfo: jsonInfo };
 
-function logInfo(toPrint, label) {
-    core.info(`${label}: ${toPrint}`);
-    return toPrint;
-}
-
-function jsonInfo(jsonToPrint: JSON, label) {
-    core.info(`${label}: ${JSON.stringify(jsonToPrint)}`);
-}
-
-function logWarn(toPrint, label) {
-    core.warning(`${label}: ${toPrint}`);
-}
 
 //// comments related functions
-export async function postComment(message) {
+export async function postComment(message : string) {
     const commentBody = `Hi @${actor}, please note the following. ${message}`;
 
     await octokit.rest.issues.createComment({
@@ -105,7 +83,7 @@ export async function postComment(message) {
 //// functions related to checks that run on commits
 
 export async function validateChecksOnPrHead() {
-    const sha = await getPRHeadShaForIssueNumber(issue_number);
+    const sha = await getPRHeadShaForIssueNumber(issue_number); // ?? not sure if this whole chain of commands is correct
     return await validateChecks(sha);
 }
 
@@ -114,7 +92,7 @@ function doesArrInclude(arr : Array<any>, element) : boolean {
 }
 
 async function validateChecks(validateForRef: string)
-: Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
+: Promise<{ didChecksPass: boolean; errMessage: string }> {
 
     core.info(`validating checks on ref: ${validateForRef}...`);
 
@@ -123,60 +101,70 @@ async function validateChecks(validateForRef: string)
 
     // wait for the checks to complete before proceeding
     while (areChecksOngoing) {
-        // https://octokit.github.io/rest.js/v18#checks-list-for-ref
-        checkRunsArr = await octokit.rest.checks.listForRef({
-            owner,
-            repo,
-            ref: validateForRef,
-        })
-        .then(res => {
-            core.info(`received the list of checks with response ${res.status}`);
-            return res.data.check_runs;
-        })
-        .catch(err => {throw err});
+        checkRunsArr = await getListOfChecks(validateForRef)
 
-        checkRunsArr.forEach(checkRun => {
-            core.info(`current status for "${checkRun.name}": ${checkRun.status}`);
-        });
+        // todo (slightly tedious) test fast fail
+        // find failed checks and end early if there's any
+        const didAnyCheckFail = findUnsuccessfulChecks(checkRunsArr);
+
+        if (didAnyCheckFail.length != 0) {
+            areChecksOngoing = false;
+            break;
+        }
 
         // find checks that are not completed and sleep while waiting for completion
-        const res = checkRunsArr.find(
+        const incompleteArr = checkRunsArr.find(
             checkRun => checkRun.status !== "completed" && !(doesArrInclude(excludedChecksNames, checkRun.name))
         );
         
-        if (res !== undefined) {
+        if (incompleteArr !== undefined) {
             await sleep(usualTimeForChecksToRun);
             continue;
         }
 
         areChecksOngoing = false;
-    }
+    } // todo test that only failed checks are being printed out 
 
-    // format the conclusions of the check runs
+    const unsuccessfulChecksArr : Array<any> = findUnsuccessfulChecks(checkRunsArr); // todo type checkruns
+    const didChecksPass = unsuccessfulChecksArr.length == 0;
+    const detailsOfConclusions = formatUnsucessfulChecks(unsuccessfulChecksArr);
+
+    const errMessage = `${errMessagePreamble}\n${detailsOfConclusions}`;
+
+    log.info(didChecksPass, "didChecksPass");
+    log.info(detailsOfConclusions, "conclusions of checks\n");
+
+    return { didChecksPass: didChecksPass, errMessage };
+}
+
+function formatUnsucessfulChecks(checkRunsArr : Array<any>) {
     let conclusionsDetails = "";
 
     checkRunsArr.forEach(checkRun => {
-        if (checkRun.status !== "completed") {
-            conclusionsDetails += `${checkRun.name}'s completion status was ignored because this check is found in the excluded checks list\n`;
+        if (checkRun.status !== "completed") { // todo remove after testing?
+            core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }
     });
+}
 
-    const didChecksRunSuccessfully = !checkRunsArr.find(
-        checkRun => checkRun.conclusion !== "success" && !(doesArrInclude(excludedChecksNames, checkRun.name))
+/**
+ * Note: 
+ * !! currently the only wrong conclusion is failure, letting all the others pass (?)
+ * possible conclusions: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out
+ * https://docs.github.com/en/rest/reference/checks#list-check-runs-for-a-git-reference
+ * returns: returns an array of checks that need attention (empty if none need attention)
+ */
+function findUnsuccessfulChecks(checkRunsArr : Array<any>) : Array<any> { // todo need a checkruns type
+    return checkRunsArr.filter(
+        checkRun => checkRun.conclusion === "failure"
+            && !(doesArrInclude(excludedChecksNames, checkRun.name))
     );
-
-    const errMessage = `${errMessagePreamble}\n${conclusionsDetails}`;
-
-    log.info(didChecksRunSuccessfully, "didChecksRunSuccessfully");
-    log.info(conclusionsDetails, "conclusions of checks\n");
-
-    return { didChecksRunSuccessfully, errMessage };
 }
 
 // when event payload that triggers this pull request does not contain sha info about the PR, this function can be used
-async function getPRHeadShaForIssueNumber(pull_number) {
+async function getPRHeadShaForIssueNumber(pull_number : number) {
     const pr = await octokit.rest.pulls.get({
         owner,
         repo,
