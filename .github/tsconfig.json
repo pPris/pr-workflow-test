@@ -7,6 +7,7 @@
       "strict": false,
       // "noImplicitAny": true,
       "esModuleInterop": true,
+      // "noImplicitReturns": true,
       "moduleResolution": "Node", // needed for ncc to find the @actions modules
       "checkJs": false,
       "noEmit": true,

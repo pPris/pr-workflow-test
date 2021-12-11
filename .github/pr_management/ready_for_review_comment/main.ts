@@ -42,9 +42,9 @@ function filterCommentBody() : boolean {
  * @returns boolean of whether all validation checks 
  */
 async function validate() : Promise<boolean> {
-    if (!isValidPRStatus()) return;
+    if (!isValidPRStatus()) return false;
 
-    if (!await isValidAuthor()) return;
+    if (!await isValidAuthor()) return false;
 
     const { didChecksPass, errMessage } = await validateChecksOnPrHead();
 
@@ -57,7 +57,7 @@ async function validate() : Promise<boolean> {
 }
 
 
-function isValidPRStatus() { // TODO check: if no validation needed, remove...
+function isValidPRStatus() : boolean { // TODO check: if no validation needed, remove...
     // nothing stops this workflow from running on PRs of specific labels
     core.warning("No pr validation has been set");
     return true;
@@ -65,7 +65,7 @@ function isValidPRStatus() { // TODO check: if no validation needed, remove...
 
 
 
-async function isValidAuthor() {
+async function isValidAuthor() : Promise<boolean> {
     const commentAuthor : string = github.context.payload.comment.user.login; // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment
     const prAuthor : string = await getCurrentIssue().then(res => res.data.user.login);
 

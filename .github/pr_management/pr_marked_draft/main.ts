@@ -33,7 +33,7 @@ async function run() {
 // }
 
 // skeleton of how to make this neater:
-async function doesPrNeedLabelling() {
+async function doesPrNeedLabelling() : Promise<boolean> {
     // get PR for this issue
     const pr = await getCurrentPRDetails().catch(err => {throw err});
 

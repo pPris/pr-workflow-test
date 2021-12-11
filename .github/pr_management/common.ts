@@ -137,7 +137,7 @@ async function validateChecks(validateForRef: string)
     return { didChecksPass: didChecksPass, errMessage };
 }
 
-function formatUnsucessfulChecks(checkRunsArr : Array<any>) {
+function formatUnsucessfulChecks(checkRunsArr : Array<any>) : string {
     let conclusionsDetails = "";
 
     checkRunsArr.forEach(checkRun => {
@@ -147,6 +147,8 @@ function formatUnsucessfulChecks(checkRunsArr : Array<any>) {
             conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }
     });
+
+    return conclusionsDetails;
 }
 
 /**

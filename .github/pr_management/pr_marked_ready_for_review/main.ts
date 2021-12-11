@@ -52,6 +52,8 @@ run();
 
 ///// HELPER FUNCTIONS /////
 
+// todo rename function to isCurrentRunTriggeredBySynchronise (?)
+// todo also not very sure where to abstract away github.context.payload stuff since payload differs across every trigger
 // checks if the currently running action get triggered by an on synchronise event
 function isOnSynchronise() {
     log.info(github.context.payload.action, "what triggered this run");
@@ -105,7 +107,7 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
 }
 
 // TODO tbh this is repeated functionality. so should go into the common class?
-async function isPrDraft() {
+async function isPrDraft() : Promise<boolean> {
     return await getCurrentPRDetails()
         .then(pr => pr.draft)
         .catch(err => {throw err});
