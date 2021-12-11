@@ -1,7 +1,11 @@
 // todo ought to move these dependencies outside? (same for all 3 main.ts)
-import * as core from '@actions/core'
+import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { postComment, validateChecksOnPrHead, removeLabel, ongoingLabel, addAppropriateReviewLabel, reviewKeywords, getCurrentIssue } from "../common"
+import { validateChecksOnPrHead } from '../common/checksValidation';
+import { ongoingLabel, reviewKeywords } from '../common/const';
+import { getCurrentIssue, postComment, removeLabel } from '../common/githubManager/issues';
+import { addAppropriateReviewLabel } from '../common/label';
+// import { postComment, validateChecksOnPrHead, removeLabel, ongoingLabel, addAppropriateReviewLabel, reviewKeywords, getCurrentIssue } from "../common"
 
 // params to set for api requests
 // references: https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts 
@@ -18,7 +22,7 @@ async function run() {
         const valid : boolean = await validate();
         if (!valid) return;
 
-        await removeLabel(ongoingLabel);;
+        await removeLabel(ongoingLabel);
         await addAppropriateReviewLabel();
     } catch (ex) {
         core.info(ex);
@@ -26,7 +30,7 @@ async function run() {
     }
 }
 
-// return if comment body has the exact keywords
+// returns whether comment body has the exact keywords
 function filterCommentBody() : boolean {
     const issueComment = github.context.payload.comment.body;
     const hasKeywords = issueComment.search(reviewKeywords) !== -1;
@@ -49,7 +53,8 @@ async function validate() : Promise<boolean> {
     const { didChecksPass, errMessage } = await validateChecksOnPrHead();
 
     if (!didChecksPass) {
-        await postComment(`${errMessage}\n Please comment \`${reviewKeywords}\` when you're ready to request a review again.`);
+        await postComment(
+            `${errMessage}\nPlease comment \`${reviewKeywords}\` when you're ready to request a review again.`);
         return false;
     }
 
@@ -66,7 +71,8 @@ function isValidPRStatus() : boolean { // TODO check: if no validation needed, r
 
 
 async function isValidAuthor() : Promise<boolean> {
-    const commentAuthor : string = github.context.payload.comment.user.login; // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment
+    // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#issue_comment
+    const commentAuthor : string = github.context.payload.comment.user.login; 
     const prAuthor : string = await getCurrentIssue().then(res => res.data.user.login);
 
     core.info(`Author of comment that triggered this workflow: ${commentAuthor}.\n` +

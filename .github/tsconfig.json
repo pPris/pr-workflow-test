@@ -13,6 +13,6 @@
       "noEmit": true,
       "skipLibCheck": true
     },
-    "include": ["./pr_management/*/*.ts", "./pr_management/common.ts"],
+    "include": ["./pr_management/*/*.ts", "./pr_management/common.ts", "pr_management/logger.ts"],
     // "exclude": ["../node_modules/*"] // only affects files added by include
   }

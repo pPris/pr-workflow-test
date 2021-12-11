@@ -1,7 +1,12 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-import { postComment, validateChecksOnPrHead, addLabel, removeLabel, ongoingLabel, toReviewLabel, finalReviewLabel, getSortedListOfEventsOnIssue, toMergeLabel, getSortedListOfComments, addAppropriateReviewLabel, errMessagePreamble, reviewKeywords } from "../common";
-import { getCurrentPRDetails, getCurrentPrLabels } from '../githubRequestsManager';
+import { validateChecksOnPrHead } from '../common/checksValidation';
+import { reviewKeywords, toReviewLabel, finalReviewLabel, toMergeLabel, ongoingLabel, errMessagePreamble } from '../common/const';
+import { getCurrentPrLabels, removeLabel, addLabel, postComment, getSortedListOfEventsOnIssue, getSortedListOfComments } from '../common/githubManager/issues';
+import { isPrDraft } from '../common/githubManager/pulls';
+import { addAppropriateReviewLabel } from '../common/label';
+// import { postComment, validateChecksOnPrHead, addLabel, removeLabel, ongoingLabel, toReviewLabel, finalReviewLabel, getSortedListOfEventsOnIssue, toMergeLabel, getSortedListOfComments, addAppropriateReviewLabel, errMessagePreamble, reviewKeywords } from "../common";
+// import { getCurrentPRDetails, getCurrentPrLabels } from '../githubRequestsManager';
 import { log } from '../logger';
 
 const furtherInstructions = `Please comment \`${reviewKeywords}\` (case sensitive) when you've passed all checks, resolved merge conflicts and are ready to request a review.`
@@ -60,25 +65,15 @@ function isOnSynchronise() {
     return github.context.payload.action === "synchronize";
 }
 
+/**
+ * Finds a label from an array of labels.
+ * @param arrayOfLabels 
+ * @param label A string of the label to find in the array
+ * @returns whether the label is found
+ */
 function hasLabel(arrayOfLabels : Array<string>,  label : string) : boolean{
     return arrayOfLabels.findIndex(l => l === label) !== -1;
 }
-
-// function hasOngoingLabel(arrayOfLabels : Array<string>) {
-//     return hasLabel(arrayOfLabels, ongoingLabel);
-// }
-
-// function hasToReviewLabel(arrayOfLabels : Array<string>) {
-//     return hasLabel(arrayOfLabels, toReviewLabel);
-// }
-
-// function hasFinalReviewLabel(arrayOfLabels : Array<string>) {
-//     return hasLabel(arrayOfLabels, finalReviewLabel);
-// }
-
-// function hasToMergeLabel(arrayOfLabels : Array<string>) {
-//     return hasLabel(arrayOfLabels, toMergeLabel);
-// }
 
 /**
  * Checks if the bot did post a comment notifying the author of failing checks, from the last time the s.Ongoing label was applied.
@@ -104,11 +99,4 @@ async function wasAuthorLinkedToFailingChecks() : Promise<boolean> {
     log.info(checksFailedComment, "checksFailedComment");
 
     return !!checksFailedComment;
-}
-
-// TODO tbh this is repeated functionality. so should go into the common class?
-async function isPrDraft() : Promise<boolean> {
-    return await getCurrentPRDetails()
-        .then(pr => pr.draft)
-        .catch(err => {throw err});
 }

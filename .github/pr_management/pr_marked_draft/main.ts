@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
-import { addLabel, ongoingLabel } from '../common';
-import { getCurrentPRDetails } from '../githubRequestsManager';
+import { addLabel, getCurrentPRDetails } from '../common/githubManager/interface';
+import { ongoingLabel } from '../common/const';
 
 async function run() {
     try {
@@ -18,26 +18,12 @@ async function run() {
     }
 }
 
-// todo del after testing
-// async function isDraftAndNotLabelledOngoing() {
-//     return await octokit.rest.pulls.get({
-//         owner,
-//         repo,
-//         pull_number: issue_number,
-//     })
-//     .then(res => {
-//         log.info(res.data.draft, `is pr ${issue_number} draft`)
-//         return res.data.draft && res.data.labels.find(l => l.name === ongoingLabel) === undefined;
-//     })
-//     .catch(err => {log.info(err, "error getting pr (issue) that triggered this workflow"); throw err;});
-// }
-
 // skeleton of how to make this neater:
 async function doesPrNeedLabelling() : Promise<boolean> {
     // get PR for this issue
     const pr = await getCurrentPRDetails().catch(err => {throw err});
 
-    if (!pr.draft) {
+    if (!pr.draft) { // todo not sure if can absolute this with isPrDraft. will need 2 api calls for these two if blocks unless i use a PR class instead of just a type
         core.info("pr is not a draft");
         return false;
     }
