@@ -144,7 +144,7 @@ function formatUnsucessfulChecks(checkRunsArr : Array<any>) : string {
         if (checkRun.status !== "completed") { // todo remove after testing?
             core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
-            conclusionsDetails += `'${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
+            conclusionsDetails += `* '${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }
     });
 
