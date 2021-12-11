@@ -82,7 +82,7 @@ export async function postComment(message : string) {
 
 //// functions related to checks that run on commits
 
-export async function validateChecksOnPrHead() {
+export async function validateChecksOnPrHead() : Promise<{ didChecksPass: boolean; errMessage: string }> {
     const sha = await getPRHeadShaForIssueNumber(issue_number); // ?? not sure if this whole chain of commands is correct
     return await validateChecks(sha);
 }
@@ -144,7 +144,7 @@ function formatUnsucessfulChecks(checkRunsArr : Array<any>) : string {
         if (checkRun.status !== "completed") { // todo remove after testing?
             core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
-            conclusionsDetails += `${checkRun.name} has ended with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
+            conclusionsDetails += `'${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }
     });
 
@@ -191,7 +191,7 @@ const sortByLastCreated = (a, b) => {
  * returns an array of all the events on this issue, sorted in descending order of the created_at property 
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */
-export async function getSortedListOfEventsOnIssue() {
+export async function getSortedListOfEventsOnIssue() { // todo return type?
     return await octokit.rest.issues.listEvents({
         owner,
         repo,
@@ -207,7 +207,7 @@ export async function getSortedListOfEventsOnIssue() {
  * returns an array of events for the current issue, sorted in descending order of the created_at property 
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */ 
-export async function getSortedListOfComments(sinceTimeStamp : string) {
+export async function getSortedListOfComments(sinceTimeStamp : string) { // todo return type?
     return await octokit.rest.issues.listComments({
         owner,
         repo,
@@ -247,6 +247,7 @@ export async function addAppropriateReviewLabel() {
     await addLabel(toReviewLabel);
 }
 
+// todo return type?
 export async function getCurrentIssue() {
     return octokit.rest.issues.get({
         owner, 
