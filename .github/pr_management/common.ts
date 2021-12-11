@@ -76,7 +76,7 @@ export async function postComment(message : string) {
         issue_number,
         body: commentBody,
     })
-    .then(res => core.info(`Commented:\n${res.data.body}\n with status ${res.status}`))
+    .then(res => core.info(`Commented with status: ${res.status}:\n${res.data.body}\n`))
     .catch(err => core.error(err))
 }
 
@@ -123,7 +123,7 @@ async function validateChecks(validateForRef: string)
         }
 
         areChecksOngoing = false;
-    } // todo test that only failed checks are being printed out 
+    }
 
     const unsuccessfulChecksArr : Array<any> = findUnsuccessfulChecks(checkRunsArr); // todo type checkruns
     const didChecksPass = unsuccessfulChecksArr.length == 0;
