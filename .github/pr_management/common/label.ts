@@ -1,6 +1,6 @@
 import * as core from '@actions/core' // todo settle logger later
 import { finalReviewLabel, toReviewLabel } from './const'
-import { getSortedListOfEventsOnIssue, addLabel } from './githubManager/issues';
+import { getSortedListOfEventsOnIssue, addLabel } from './github-manager/issues';
 
 /**
  * Adds the last review label that was added to the pr, if any is found, else adds the toReviewLabel.

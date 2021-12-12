@@ -1,7 +1,10 @@
-import * as core from '@actions/core'
-import { addLabel, getCurrentPRDetails } from '../common/githubManager/interface';
+import * as core from '@actions/core';
 import { ongoingLabel } from '../common/const';
+import { addLabel, getCurrentPR } from '../common/github-manager/interface';
 
+/**
+ * This is the main function of this file.
+ */
 async function run() {
     try {
         const needsLabelling = await doesPrNeedLabelling();
@@ -21,7 +24,7 @@ async function run() {
 // skeleton of how to make this neater:
 async function doesPrNeedLabelling() : Promise<boolean> {
     // get PR for this issue
-    const pr = await getCurrentPRDetails().catch(err => {throw err});
+    const pr = await getCurrentPR().catch(err => {throw err});
 
     if (!pr.draft) { // todo not sure if can absolute this with isPrDraft. will need 2 api calls for these two if blocks unless i use a PR class instead of just a type
         core.info("pr is not a draft");

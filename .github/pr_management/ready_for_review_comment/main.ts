@@ -3,15 +3,11 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { validateChecksOnPrHead } from '../common/checksValidation';
 import { ongoingLabel, reviewKeywords } from '../common/const';
-import { getCurrentIssue, postComment, removeLabel } from '../common/githubManager/issues';
+import { getCurrentIssue, postComment, removeLabel } from '../common/github-manager/issues';
 import { addAppropriateReviewLabel } from '../common/label';
-// import { postComment, validateChecksOnPrHead, removeLabel, ongoingLabel, addAppropriateReviewLabel, reviewKeywords, getCurrentIssue } from "../common"
-
-// params to set for api requests
-// references: https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts 
 
 /**
- * This is the main function of this file
+ * This is the main function of this file.
  */
 async function run() {
     try {
@@ -50,9 +46,9 @@ async function validate() : Promise<boolean> {
 
     if (!await isValidAuthor()) return false;
 
-    const { didChecksPass, errMessage } = await validateChecksOnPrHead();
+    const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
-    if (!didChecksPass) {
+    if (!didChecksRunSuccessfully) {
         await postComment(
             `${errMessage}\nPlease comment \`${reviewKeywords}\` when you're ready to request a review again.`);
         return false;

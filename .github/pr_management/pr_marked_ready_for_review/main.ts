@@ -2,25 +2,26 @@ import * as core from '@actions/core'
 import * as github from '@actions/github';
 import { validateChecksOnPrHead } from '../common/checksValidation';
 import { reviewKeywords, toReviewLabel, finalReviewLabel, toMergeLabel, ongoingLabel, errMessagePreamble } from '../common/const';
-import { getCurrentPrLabels, removeLabel, addLabel, postComment, getSortedListOfEventsOnIssue, getSortedListOfComments } from '../common/githubManager/issues';
-import { isPrDraft } from '../common/githubManager/pulls';
+import { getCurrentPrLabels, removeLabel, addLabel, postComment, getSortedListOfEventsOnIssue, getSortedListOfComments } from '../common/github-manager/issues';
+import { isPrDraft } from '../common/github-manager/pulls';
 import { addAppropriateReviewLabel } from '../common/label';
-// import { postComment, validateChecksOnPrHead, addLabel, removeLabel, ongoingLabel, toReviewLabel, finalReviewLabel, getSortedListOfEventsOnIssue, toMergeLabel, getSortedListOfComments, addAppropriateReviewLabel, errMessagePreamble, reviewKeywords } from "../common";
-// import { getCurrentPRDetails, getCurrentPrLabels } from '../githubRequestsManager';
 import { log } from '../logger';
 
 const furtherInstructions = `Please comment \`${reviewKeywords}\` (case sensitive) when you've passed all checks, resolved merge conflicts and are ready to request a review.`
 
+/**
+ * This is the main function of this file.
+ */
 async function run() {
     if (await isPrDraft()) return; // needed because synchronise event triggers this workflow on even draft PRs
 
     const prLabels : string[] = await getCurrentPrLabels();
 
-    const { didChecksPass: didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
+    const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
     if (didChecksRunSuccessfully) {
         if (hasLabel(prLabels, toReviewLabel) || hasLabel(prLabels, finalReviewLabel) || hasLabel(prLabels, toMergeLabel)) {
-            core.info("Already has a review label or toMerge label and checks are passing, nothing to be done here. exiting...")
+            core.info("PR already has a review label or toMerge label and checks are passing, nothing to do here. exiting...")
             return;
         }
 
@@ -58,7 +59,6 @@ run();
 ///// HELPER FUNCTIONS /////
 
 // todo rename function to isCurrentRunTriggeredBySynchronise (?)
-// todo also not very sure where to abstract away github.context.payload stuff since payload differs across every trigger
 // checks if the currently running action get triggered by an on synchronise event
 function isOnSynchronise() {
     log.info(github.context.payload.action, "what triggered this run");
@@ -78,7 +78,7 @@ function hasLabel(arrayOfLabels : Array<string>,  label : string) : boolean{
 /**
  * Checks if the bot did post a comment notifying the author of failing checks, from the last time the s.Ongoing label was applied.
  * This function is necessary for this case: 
- * A draft pr has an ongoing label -> author converts to ready for review but there's failing checks. The bot should comment once (i think).
+ * A draft pr has an ongoing label -> author converts to ready for review but there's failing checks. The bot should comment only once.
  * 
  * There are two rest requests in this function itself, and this file is ran on every commit
  */

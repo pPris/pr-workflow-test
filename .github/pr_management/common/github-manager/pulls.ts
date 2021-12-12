@@ -12,7 +12,7 @@ const issue_number = github.context.issue.number;
 /**
  * Gets details from the pulls api about the issue that triggered this workflow. 
  */
-export async function getCurrentPRDetails() { // todo return object needs a type // todo just say getCurrentPR just like getCurrentIssue?
+export async function getCurrentPR() { // todo return object needs a type
     return await octokit.rest.pulls.get({
         owner,
         repo,
@@ -22,7 +22,10 @@ export async function getCurrentPRDetails() { // todo return object needs a type
     .catch(err => {log.info(err, "error getting pr (issue) that triggered this workflow"); throw err;});
 }
 
-// when event payload that triggers this pull request does not contain sha info about the PR, this function can be used
+/**
+ * Gets the current PR's head commit's SHA. 
+ * (Current PR means that the issue_number is taken from the github.context object)
+ */
 export async function getCurrentPRHeadSha() {
     const pr = await octokit.rest.pulls.get({
         owner,
@@ -37,9 +40,8 @@ export async function getCurrentPRHeadSha() {
 }
 
 
-// TODO tbh this is repeated functionality. so should go into the common class?
 export async function isPrDraft() : Promise<boolean> {
-    return await getCurrentPRDetails()
+    return await getCurrentPR()
         .then(pr => pr.draft)
         .catch(err => {throw err});
 }

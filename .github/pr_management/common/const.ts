@@ -1,7 +1,7 @@
 /**
- * Constants that depend on teammates or are used across the actions
+ * Constants that depend on teammates or are used across multiple main.ts files.
  */
-
+// need to be consistent with teammates' issue tracker
 export const ongoingLabel = "s.Ongoing";
 export const toReviewLabel = "s.ToReview";
 export const finalReviewLabel = "s.FinalReview";

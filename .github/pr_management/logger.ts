@@ -22,11 +22,4 @@ export const log = {
     jsonInfo: jsonInfo 
 };
 
-// TODO
-// current issue is not standardizing functions that print messages with labels (now in logger)
-// and messages without labels (using core)
-// either we just stick to using the core functionality (wrapped in logger)
-// or find a better way to do this (ugly way like checking for multiple arguments)
-// or maybe just (for each str passed in as argument, concatenate) and send it to core.info
-
-//* this is a low priority issue. do this last 
+// TODO encapsulating core.logging functions with log 

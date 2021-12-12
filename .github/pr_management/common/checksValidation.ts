@@ -2,10 +2,10 @@
  * This file has all the helper functions needed to validate if the checks on a commit in a pr 
  * are successful / have completed execution.
  */
-import * as core from '@actions/core'
+import * as core from '@actions/core';
 import { log } from '../logger';
 import { errMessagePreamble, excludedChecksNames, usualTimeForChecksToRun } from './const';
-import { getCurrentPRHeadSha, getListOfChecks } from './githubManager/interface';
+import { getCurrentPRHeadSha, getListOfChecks } from './github-manager/interface';
 
 export async function sleep(ms : number) {
     core.info(`sleeping for ${ms} milliseconds...`);
@@ -14,8 +14,8 @@ export async function sleep(ms : number) {
 
 //// functions related to checks that run on commits
 
-export async function validateChecksOnPrHead() : Promise<{ didChecksPass: boolean; errMessage: string }> {
-    const sha = await getCurrentPRHeadSha(); // ?? not sure if this whole chain of commands is correctly organised // todo shorten name
+export async function validateChecksOnPrHead() : Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
+    const sha = await getCurrentPRHeadSha();
     return await validateChecks(sha);
 }
 
@@ -30,7 +30,7 @@ function doesArrInclude(arr : Array<any>, element) : boolean {
  * @returns A boolean of whether all checks passed, and list of unsuccessful checks 
  */
 async function validateChecks(validateForRef: string)
-: Promise<{ didChecksPass: boolean; errMessage: string }> {
+: Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
 
     core.info(`validating checks on ref: ${validateForRef}...`);
 
@@ -64,18 +64,18 @@ async function validateChecks(validateForRef: string)
     }
 
     const unsuccessfulChecksArr : Array<any> = findUnsuccessfulChecks(checkRunsArr); // todo type checkruns
-    const didChecksPass = unsuccessfulChecksArr.length == 0;
-    const detailsOfConclusions = formatUnsucessfulChecks(unsuccessfulChecksArr);
+    const didChecksRunSuccessfully = unsuccessfulChecksArr.length == 0;
+    const detailsOfConclusions = formatUnsuccessfulChecks(unsuccessfulChecksArr);
 
     const errMessage = `${errMessagePreamble}\n${detailsOfConclusions}`;
 
-    log.info(didChecksPass, "didChecksPass");
+    log.info(didChecksRunSuccessfully, "didChecksRunSuccessfully");
     log.info(detailsOfConclusions, "conclusions of checks\n");
 
-    return { didChecksPass: didChecksPass, errMessage };
+    return { didChecksRunSuccessfully: didChecksRunSuccessfully, errMessage };
 }
 
-function formatUnsucessfulChecks(checkRunsArr : Array<any>) : string {
+function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
     let conclusionsDetails = "";
 
     checkRunsArr.forEach(checkRun => {
@@ -95,7 +95,8 @@ function formatUnsucessfulChecks(checkRunsArr : Array<any>) : string {
  * !! currently the only wrong conclusion is failure, letting all the others pass (?) // todo this comment needs attention
  * possible conclusions: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out
  * https://docs.github.com/en/rest/reference/checks#list-check-runs-for-a-git-reference
- * returns: returns an array of checks that need attention (empty if none need attention)
+ * 
+ * @returns: returns an array of checks that need attention (empty if none need attention)
  */
  function findUnsuccessfulChecks(checkRunsArr : Array<any>) : Array<any> { // todo need a checkruns type
     return checkRunsArr.filter(

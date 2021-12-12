@@ -1,14 +1,12 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github';
-import { log } from '../../logger'
 
 const token = core.getInput("repo-token");
 const octokit = github.getOctokit(token);
 
+// references: https://github.com/actions/toolkit/blob/main/packages/github/src/context.ts 
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
-const issue_number = github.context.issue.number;
-const actor = github.context.actor;
 
 // https://octokit.github.io/rest.js/v18#checks-list-for-ref
 export async function getListOfChecks(ref : string) { // todo same as above - return object needs a type
