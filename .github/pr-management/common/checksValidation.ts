@@ -63,12 +63,12 @@ async function validateChecks(validateForRef: string)
 
     const unsuccessfulChecksArr : Array<any> = findUnsuccessfulChecks(checkRunsArr); // todo type checkruns
     const didChecksRunSuccessfully = unsuccessfulChecksArr.length == 0;
-    const detailsOfConclusions = formatUnsuccessfulChecks(unsuccessfulChecksArr);
+    const formattedDetails = formatUnsuccessfulChecks(unsuccessfulChecksArr);
 
-    const errMessage = `${errMessagePreamble}\n${detailsOfConclusions}`;
+    const errMessage = `${errMessagePreamble}\n${formattedDetails}`;
 
     log.info(didChecksRunSuccessfully, "didChecksRunSuccessfully");
-    log.info(detailsOfConclusions, "conclusions of checks\n");
+    log.info(formattedDetails, "details of unsuccessful checks\n");
 
     return { didChecksRunSuccessfully: didChecksRunSuccessfully, errMessage };
 }

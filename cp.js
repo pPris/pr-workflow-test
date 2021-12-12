@@ -1,4 +1,7 @@
 
+// ! havent tested this for copying.
+// for the first time i just copied the entire file explorer folder
+
 let dirs = [
   "ready-for-review-comment", 
   "pr-marked-ready-for-review",
@@ -38,11 +41,11 @@ function doOperation(op) {
     
 
   console.log(
-    `${op} ./pr-workflow-test/.github/pr-management/common.ts  ./teammates/.github/pr-management/common.ts`)
+    `${op} -r ./pr-workflow-test/.github/pr-management/common  ./teammates/.github/pr-management/common`)
 
 }
 
-doOperation(opCompare);
+doOperation(opCopy);
 
   // ! package.json was changed
 

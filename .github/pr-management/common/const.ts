@@ -9,7 +9,7 @@ export const toMergeLabel = "s.ToMerge";
 
 //// variables to configure
 export const usualTimeForChecksToRun = 10 * 60 * 1000; // min * sec * ms
-export const errMessagePreamble = "There is at least one failing check.";
+export const errMessagePreamble = "There is at least one failing check:";
 export const reviewKeywords = "PR ready for review";
 
 /* this list of names of excluded checks is to prevent infinite waiting while checking for workflow statuses. 
