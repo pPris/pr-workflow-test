@@ -7,7 +7,7 @@
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "lint2": "eslint --ignore-path .eslintignore --ext .ts, .github/",
     "actions:tsc": "cd .github && tsc",
-    "actions:minify": "ncc build .github/pr_management/pr_marked_draft/main.ts -o .github/pr_management/pr_marked_draft/ -m --license licenses.txt && ncc build .github/pr_management/pr_marked_ready_for_review/main.ts -o .github/pr_management/pr_marked_ready_for_review/ -m --license licenses.txt && ncc build .github/pr_management/ready_for_review_comment/main.ts -o .github/pr_management/ready_for_review_comment/ -m --license licenses.txt",
+    "actions:minify": "ncc build .github/pr-management/pr-marked-draft/main.ts -o .github/pr-management/pr-marked-draft/ -m --license licenses.txt && ncc build .github/pr-management/pr-marked-ready-for-review/main.ts -o .github/pr-management/pr-marked-ready-for-review/ -m --license licenses.txt && ncc build .github/pr-management/ready-for-review-comment/main.ts -o .github/pr-management/ready-for-review-comment/ -m --license licenses.txt",
     "actions:build": "npm run-script actions:tsc && npm run-script actions:minify"
   },
   "repository": {

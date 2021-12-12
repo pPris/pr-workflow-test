@@ -1,8 +1,8 @@
 
 let dirs = [
-  "ready_for_review_comment", 
-  "pr_marked_ready_for_review",
-  "pr_marked_draft"
+  "ready-for-review-comment", 
+  "pr-marked-ready-for-review",
+  "pr-marked-draft"
 ]
 
 let files = [
@@ -29,7 +29,7 @@ function doOperation(op) {
   for (var dir of dirs)
     for (let file of files)
       console.log(
-        `${op} ./pr-workflow-test/.github/pr_management/${dir}/${file}  ./teammates/.github/pr_management/${dir}/${file}`)
+        `${op} ./pr-workflow-test/.github/pr-management/${dir}/${file}  ./teammates/.github/pr-management/${dir}/${file}`)
 
   // for (var dir of dirs)
     for (let file of workflowFiles)
@@ -38,7 +38,7 @@ function doOperation(op) {
     
 
   console.log(
-    `${op} ./pr-workflow-test/.github/pr_management/common.ts  ./teammates/.github/pr_management/common.ts`)
+    `${op} ./pr-workflow-test/.github/pr-management/common.ts  ./teammates/.github/pr-management/common.ts`)
 
 }
 
@@ -46,9 +46,9 @@ doOperation(opCompare);
 
   // ! package.json was changed
 
-  // ncc build .github/pr_management/pr_marked_draft/main.ts -o .github/pr_management/pr_marked_draft/ -m --license licenses.txt 
-  // && ncc build .github/pr_management/pr_marked_ready_for_review/main.ts -o .github/pr_management/pr_marked_ready_for_review/ -m --license licenses.txt 
-  // && ncc build .github/pr_management/ready_for_review_comment/main.js -o .github/pr_management/ready_for_review_comment/ -m --license licenses.txt",
+  // ncc build .github/pr-management/pr-marked-draft/main.ts -o .github/pr-management/pr-marked-draft/ -m --license licenses.txt 
+  // && ncc build .github/pr-management/pr-marked-ready-for-review/main.ts -o .github/pr-management/pr-marked-ready-for-review/ -m --license licenses.txt 
+  // && ncc build .github/pr-management/ready-for-review-comment/main.js -o .github/pr-management/ready-for-review-comment/ -m --license licenses.txt",
 
   
 /*
