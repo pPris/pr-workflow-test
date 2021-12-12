@@ -12,14 +12,17 @@ const issue_number = github.context.issue.number;
 /**
  * Gets details from the pulls api about the issue that triggered this workflow. 
  */
-export async function getCurrentPR() { // todo return object needs a type
+export async function getCurrentPR() { // todo return type
     return await octokit.rest.pulls.get({
         owner,
         repo,
         pull_number: issue_number,
     })
     .then(res => res.data) // res has other properties like status, headers, url, and data. the details of the pr is in the data property.
-    .catch(err => {log.info(err, "error getting pr (issue) that triggered this workflow"); throw err;});
+    .catch(err => {
+        log.info(err, "error getting pr (issue) that triggered this workflow"); 
+        throw err;
+    });
 }
 
 /**

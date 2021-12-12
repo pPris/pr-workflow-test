@@ -43,9 +43,13 @@ export async function getCurrentPrLabels() : Promise<string[]> {
         repo, 
         issue_number
     })
-    .then(res => res.data.labels.map((label: {name: string}) => label.name)) // todo this function flattens the labels i think. not sure if it should be doing it at this level.
-    .then(l => log.info(l, `labels returned for pr ${issue_number}`))
-    .catch(err => {core.info(err); throw err});
+    .then(res => {
+        // todo this function flattens the labels i think. not sure if it should be doing it at this level.
+        const labels = res.data.labels.map((label: {name: string}) => label.name)
+        core.info(`labels returned for pr ${issue_number}: ${labels}`)
+        return labels;        
+    }) 
+    .catch(err => {core.error(err); throw err});
 }
 
 
@@ -63,13 +67,13 @@ export async function postComment(message : string) {
     .catch(err => core.error(err))
 }
 
-const sortByLastCreated = (a, b) => { // todo {created_at: string} ?
+const sortByLastCreated = (a : {created_at: string}, b : {created_at: string}) : number => {
     if (!a.created_at || !b.created_at) return 1; // move back if created_at property is missing
     return Date.parse(b.created_at) - Date.parse(a.created_at)
 }
 
 /**
- * returns an array of all the events on this issue, sorted in descending order of the created_at property 
+ * Returns an array of all the events on this issue, sorted in descending order of the created_at property. 
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */
  export async function getSortedListOfEventsOnIssue() { // todo return type?
@@ -79,13 +83,11 @@ const sortByLastCreated = (a, b) => { // todo {created_at: string} ?
         issue_number,
     })
     .then(res => res.data.sort(sortByLastCreated))
-    .catch(err => {
-        throw err;
-    });
+    .catch(err => {throw err;});
 }
 
 /**
- * returns an array of events for the current issue, sorted in descending order of the created_at property 
+ * Returns an array of events for the current issue, sorted in descending order of the created_at property.
  * https://octokit.github.io/rest.js/v18#issues-list-events
  */ 
 export async function getSortedListOfComments(sinceTimeStamp : string) { // todo return type?

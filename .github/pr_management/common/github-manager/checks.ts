@@ -9,7 +9,7 @@ const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 
 // https://octokit.github.io/rest.js/v18#checks-list-for-ref
-export async function getListOfChecks(ref : string) { // todo same as above - return object needs a type
+export async function getListOfChecks(ref : string) { // todo return type
     const checkRunsArr = await octokit.rest.checks.listForRef({
         owner,
         repo,

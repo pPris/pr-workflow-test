@@ -13,12 +13,27 @@ const furtherInstructions = `Please comment \`${reviewKeywords}\` (case sensitiv
  * This is the main function of this file.
  */
 async function run() {
-    if (await isPrDraft()) return; // needed because synchronise event triggers this workflow on even draft PRs
+    try {
+        if (await isPrDraft()) return; // needed because synchronise event triggers this workflow on even draft PRs
 
-    const prLabels : string[] = await getCurrentPrLabels();
+        const prLabels : string[] = await getCurrentPrLabels();
 
-    const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
+        const { didChecksRunSuccessfully, errMessage } = await validateChecksOnPrHead();
 
+        await handleLabelling(didChecksRunSuccessfully, errMessage, prLabels);
+        
+    } catch (ex) {
+        core.info(ex);
+        core.setFailed(ex.message);
+    }
+
+}
+
+run();
+
+///// HELPER FUNCTIONS /////
+
+async function handleLabelling(didChecksRunSuccessfully : boolean, errMessage : string, prLabels : string[]) {
     if (didChecksRunSuccessfully) {
         if (hasLabel(prLabels, toReviewLabel) || hasLabel(prLabels, finalReviewLabel) || hasLabel(prLabels, toMergeLabel)) {
             core.info("PR already has a review label or toMerge label and checks are passing, nothing to do here. exiting...")
@@ -54,13 +69,10 @@ async function run() {
     }
 }
 
-run();
-
-///// HELPER FUNCTIONS /////
-
-// todo rename function to isCurrentRunTriggeredBySynchronise (?)
-// checks if the currently running action get triggered by an on synchronise event
-function isOnSynchronise() {
+/**
+ * Checks if the currently running action has been triggered by an 'on synchronise' event.
+ */
+function isOnSynchronise() : boolean {
     log.info(github.context.payload.action, "what triggered this run");
     return github.context.payload.action === "synchronize";
 }

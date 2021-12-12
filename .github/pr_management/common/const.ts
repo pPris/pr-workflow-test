@@ -18,8 +18,7 @@ const draftPr = "Handle PR that may be draft";
 const readyForReviewPr = "Handle PR that may be ready for review";
 const issueComment = "PR Comment";
 
-// TODO names of excluded checks
-export const excludedChecksNames = [
+export const namesOfExcludedChecks = [
     draftPr,
     readyForReviewPr,
     issueComment

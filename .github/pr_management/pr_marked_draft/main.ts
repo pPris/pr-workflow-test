@@ -26,7 +26,7 @@ async function doesPrNeedLabelling() : Promise<boolean> {
     // get PR for this issue
     const pr = await getCurrentPR().catch(err => {throw err});
 
-    if (!pr.draft) { // todo not sure if can absolute this with isPrDraft. will need 2 api calls for these two if blocks unless i use a PR class instead of just a type
+    if (!pr.draft) {
         core.info("pr is not a draft");
         return false;
     }

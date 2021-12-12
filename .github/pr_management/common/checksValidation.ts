@@ -4,15 +4,13 @@
  */
 import * as core from '@actions/core';
 import { log } from '../logger';
-import { errMessagePreamble, excludedChecksNames, usualTimeForChecksToRun } from './const';
+import { errMessagePreamble, namesOfExcludedChecks, usualTimeForChecksToRun } from './const';
 import { getCurrentPRHeadSha, getListOfChecks } from './github-manager/interface';
 
 export async function sleep(ms : number) {
     core.info(`sleeping for ${ms} milliseconds...`);
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-//// functions related to checks that run on commits
 
 export async function validateChecksOnPrHead() : Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
     const sha = await getCurrentPRHeadSha();
@@ -25,7 +23,7 @@ function doesArrInclude(arr : Array<any>, element) : boolean {
 
 /**
  * Queries the checks api and waits for failing checks to be found. If no failing checks 
- * found then waits for all checks to complete.
+ * found yet then waits for all checks to complete (minimises busy waiting)
  * @param validateForRef sha of the current pr (as the api to get lists of checks needs it)
  * @returns A boolean of whether all checks passed, and list of unsuccessful checks 
  */
@@ -52,7 +50,7 @@ async function validateChecks(validateForRef: string)
 
         // find checks that are not completed and sleep while waiting for completion
         const incompleteArr = checkRunsArr.find(
-            checkRun => checkRun.status !== "completed" && !(doesArrInclude(excludedChecksNames, checkRun.name))
+            checkRun => checkRun.status !== "completed" && !(doesArrInclude(namesOfExcludedChecks, checkRun.name))
         );
         
         if (incompleteArr !== undefined) {
@@ -79,7 +77,7 @@ function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
     let conclusionsDetails = "";
 
     checkRunsArr.forEach(checkRun => {
-        if (checkRun.status !== "completed") { // todo remove after testing?
+        if (checkRun.status !== "completed") { // todo check on failing workflows
             core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
             conclusionsDetails += `* '${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
@@ -101,6 +99,6 @@ function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
  function findUnsuccessfulChecks(checkRunsArr : Array<any>) : Array<any> { // todo need a checkruns type
     return checkRunsArr.filter(
         checkRun => checkRun.conclusion === "failure"
-            && !(doesArrInclude(excludedChecksNames, checkRun.name))
+            && !(doesArrInclude(namesOfExcludedChecks, checkRun.name))
     );
 }

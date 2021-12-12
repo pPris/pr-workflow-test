@@ -1,4 +1,3 @@
-// todo ought to move these dependencies outside? (same for all 3 main.ts)
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { validateChecksOnPrHead } from '../common/checksValidation';
@@ -26,7 +25,7 @@ async function run() {
     }
 }
 
-// returns whether comment body has the exact keywords
+// returns whether the comment body that triggered this workflow has the exact keywords
 function filterCommentBody() : boolean {
     const issueComment = github.context.payload.comment.body;
     const hasKeywords = issueComment.search(reviewKeywords) !== -1;
@@ -38,8 +37,9 @@ function filterCommentBody() : boolean {
 }
 
 /**
- * Wrapper function for all validation related logic to perform. If any fail, this function will handle posting a comment.
- * @returns boolean of whether all validation checks 
+ * Wrapper function for all validation related logic to perform. If any fail, 
+ * this function will handle posting a comment.
+ * @returns boolean of whether all validation checks are passing
  */
 async function validate() : Promise<boolean> {
     if (!isValidPRStatus()) return false;
@@ -58,8 +58,8 @@ async function validate() : Promise<boolean> {
 }
 
 
+// to validated if the pr that the workflow is running on is valid, or if it should be skipped
 function isValidPRStatus() : boolean { // TODO check: if no validation needed, remove...
-    // nothing stops this workflow from running on PRs of specific labels
     core.warning("No pr validation has been set");
     return true;
 }
