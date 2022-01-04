@@ -20,27 +20,27 @@ Some background to the automation project can be found here: https://github.com/
 
 ## Overview of features
 
-As a brief overview, the following are the tasks that have been automated in this repository. These have been automated by using customly written actions in github workflows.
+Briefly, the following are the tasks that have been automated in this repository. These have been automated by using customly written actions in github workflows.
  
-1. Editting labels assigned to PRs when they are newly opened, or when they are converted from a draft PR to a ready-for-review PR or vice versa on github.
+1. Editting labels assigned to PRs when they are newly opened, or when they are converted from a draft PR to a ready-for-review PR or vice versa on the github webpage.
 
 1. Editting labels assigned to PRs with the s.ToReview or s.FinalReview when the latest commit fails checks 
 
 1. Restoring review labels when the PR author gets the checks passing once again
 
-These features were prioritised for implementation after some discussion with experienced contributers in TEAMMATES. Hence do discuss with them before starting any PRs related to adding to these features.
+These features were prioritised for implementation after some discussion with experienced TEAMMATES contributers. Hence do discuss with them before starting any PRs related to adding to these features.
 
 # Organisation of files
 
 Here is how the files related to workflow automation have been organised.
 
 * **/.github/workflow**
-  * Yaml files that trigger a workflow will be found here
+  * yaml files that trigger a workflow will be found here
   * The github actions api searches this exact path for workflow files so this folder should not be renamed
 * **./.github/pr-management**
-  * All files that are related to automating pr-management have been grouped under this folder
+  * All files that are related to automating pr management have been grouped under this folder
 * **./.github/pr-management/common**
-  * This folder conatins all the common code that can be used by multiple actions 
+  * This folder contains all the common code that can be used by multiple actions 
   * Functions that need to be used by different actions can be kept in this common folder to avoid reuse
 * **./.github/pr-management/common/github-helper**
   * This folder contains modules that abstract away the github api (i.e. usages of the octokit module) 
@@ -51,11 +51,11 @@ Here is how the files related to workflow automation have been organised.
       import { … } from '../common/github-manager/interface';
       ```
 * **./.github/pr-management/{custom-written-action}** 
-  * Except for the common folder, every folder in pr-management contains a custom action written in javascript
+  * Except for the common folder, every folder in pr-management belongs to this category. Each of these folders contain a custom action written in javascript
   * These are the files usually in this folder
-    * **action.yml** - This file contains all necessary metadata for the action, including the inputs that the actions takes, and what files the action runs. 
+    * **action.yaml** - This file contains all necessary metadata for the action, including the inputs that the actions takes, and what files the action runs. 
     * **main.ts** - This file has the code that encapsulates the logic that runs during the action. 
-    * **index.js** - Once the main.ts file is built and minified using the ncc module, this index.js file is outputted. The action.yml file makes a reference to this file so this file must be committed.
+    * **index.js** - Once the main.ts file is built and minified using the ncc module, this index.js file is outputted. The action.yaml file makes a reference to this file so this file must be committed.
 
 
 
@@ -65,10 +65,10 @@ This section is an overview of the steps needed to create a new workflow for the
 
 When making a new workflow, these are the steps generally needed: 
 
-1. Create a yml file in .github/workflow to trigger that workflow. This workflow file needs to specify what events to be triggered on and what steps to execute when the workflow is running. ([Here's the documentation](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions) for the syntax in these workflow files.)
+1. Create a yaml file in `.github/workflow` to trigger that workflow. This workflow file needs to specify what events to be triggered on and what steps to execute when the workflow is running. ([Here's the documentation](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions) for the syntax in these workflow files.)
 
 1. For each `step` in the workflow, you can specify an action to run. This action can be an action in the marketplace or a customly written action. In this repo, it is generally preferred to use the latter. 
-You can make a workflow run a customly written actions by pointing the 'uses:' key in the yaml file to a directory that contains your action.yml file, for example: 
+You can make a workflow run a customly written actions by pointing the `uses:` key in the yaml file to a directory that contains your `action.yaml` file, for example: 
 
     ```yaml
     - name: Check if a PR is a draft and assign label s.Ongoing
@@ -81,14 +81,14 @@ You can make a workflow run a customly written actions by pointing the 'uses:' k
 
 1. For committing purposes, build and minify your `main.ts` files to create the license file and a `index.js` file.
 
-1. In the action.yml file, specify the metadata needed for the action [(metadata documentation)](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs), including the location of the javascript file to run. Currently, in this repo, each action.yml file, its corresponding javascript and typescript files are kept in the same directory.
+1. In the `action.yaml` file, specify the metadata needed for the action [(metadata documentation)](https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs), including the location of the javascript file to run. Currently, in this repo, each action.yaml file, its corresponding javascript and typescript files are kept in the same directory.
 
 Generally, these are the new files you would have added to the repository when creating a new workflow:
 
     ```
-    |-- ./.github/workflow/{workflow-file-name}.yml
+    |-- ./.github/workflow/{workflow-file-name}.yaml
     |-- ./.github/pr-management/{custom-action-name}/
-        |-- action.yml
+        |-- action.yaml
         |-- main.ts
         |-- index.js
     ```
@@ -166,4 +166,9 @@ The payload object contains different properties depending on the events that tr
 
 Function names that mention a current pr or current issue (e.g. `getCurrentPr()`) mean that api calls made in the function use the `issue_number` from the `github.context` object. 
 
+# Extra resources
 
+For writing the logic of your custom action, the following resource(s) might be helpful: 
+
+* Rest api documentation: https://octokit.github.io/rest.js/v18
+* Github tutorial: https://lab.github.com/githubtraining/github-actions:-writing-javascript-actions
