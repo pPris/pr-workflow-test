@@ -20,7 +20,6 @@ function warn(toPrint : any, label? : string) {
 export const log = { 
     info: info, 
     warn: warn, 
-    jsonInfo: jsonInfo 
 };
 
 // TODO encapsulating core.logging functions with log 

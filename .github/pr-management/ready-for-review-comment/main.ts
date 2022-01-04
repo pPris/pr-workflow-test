@@ -59,7 +59,7 @@ async function validate() : Promise<boolean> {
 
 
 // to validated if the pr that the workflow is running on is valid, or if it should be skipped
-function isValidPRStatus() : boolean { // TODO check: if no validation needed, remove...
+function isValidPRStatus() : boolean { // TODO check: if no validation needed, remove... // should this be running on draft prs
     core.warning("No pr validation has been set");
     return true;
 }
