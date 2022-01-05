@@ -14,15 +14,16 @@ Briefly, the following are the tasks that have been automated in this repository
 
 1. Restoring review labels when the PR author gets the checks passing once again.
 
-These features were prioritised for implementation after some discussion with experienced TEAMMATES contributers. Hence do discuss with them before starting any PRs related to adding to these features.
+These pr-management related features were prioritised for implementation after some discussion with experienced TEAMMATES contributers. Hence do discuss with them before starting any PRs related to adding to these features.
 
 # Organisation of files
 
 Here is how the files related to workflow automation have been organised.
 
-* **/.github/workflow**
+* **./.github/workflow**
   * yaml files that trigger a workflow will be found here
   * The github actions api searches this exact path for workflow files so this folder should not be renamed
+  * Not all files in this folder belong to the pr-management project. Some are existing continuous integration files.
 * **./.github/pr-management**
   * All files that are related to automating pr management have been grouped under this folder
 * **./.github/pr-management/common**
@@ -42,7 +43,6 @@ Here is how the files related to workflow automation have been organised.
     * **action.yaml** - This file contains all necessary metadata for the action, including the inputs that the actions takes, and what files the action runs. 
     * **main.ts** - This file has the code that encapsulates the logic that runs during the action. 
     * **index.js** - Once the main.ts file is built and minified using the ncc module, this index.js file is outputted. The action.yaml file makes a reference to this file so this file must be committed.
-
 
 
 # Process of creating a new workflow
@@ -85,6 +85,8 @@ The process of setting up this project is similar to any node project. Simply in
 
 <!-- TODO # testing your workflow -->
 
+<!-- TODO tsconfig directory too (grouping all todos) -->
+
 # Main dependencies (node modules this project depends on)
 
 There are two main modules that custom actions depend on - `@actions/core` and `@actions/github`. The core module provides important functionality such as logging output that you can view after the execution of a workflow. This can also be useful for debugging.
@@ -103,8 +105,6 @@ Hence, a workaround is after coding in a typescript file, we minify all the depe
 
 Do note that the ncc command also depends on the tsconfig.json file.
 
-<!-- TODO directory -->
-
 
 # Commands to run before committing
 
@@ -118,7 +118,7 @@ The command needs to be repeated for each file to minify.
 
 To simplify things, the command for building all main.ts files into index.js files is added as a script in package.json. This script can be executed by doing `npm run actions:minify`.
 
-The command to check for typescript errors and then build can be executed in one step with `npm run actions:build`. 
+The command to check for typescript errors and then build can be executed in one step with `npm run actions`. 
 
 When new main.ts files are added into this repository, package.json should be updated.
 
