@@ -44,8 +44,8 @@ export async function getCurrentPrLabels() : Promise<string[]> {
         issue_number
     })
     .then(res => {
-        // todo this function flattens the labels i think. not sure if it should be doing it at this level.
-        const labels = res.data.labels.map((label: {name: string}) => label.name)
+        // flatten the labels returned 
+        const labels : string[] = res.data.labels.map((label: {name: string}) => label.name)
         core.info(`labels returned for pr ${issue_number}: ${labels}`)
         return labels;        
     }) 

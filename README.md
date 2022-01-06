@@ -9,3 +9,5 @@ notes to self:
 - remember to commit to the right branch 
 
 <!-- # todo standardizing between index.js and main.ts? -->
+
+# Documentation for workflow project is [in another md folder](./workflow-automation.md)

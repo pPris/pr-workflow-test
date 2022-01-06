@@ -13,8 +13,6 @@
       "noEmit": true,
       "skipLibCheck": true
     },
-    "include": ["./pr-management/*/*.ts", "./pr-management/common.ts", "pr-management/logger.ts", "pr-management/common/github-manager/types.ts"],
+    "include": ["./*/*.ts", "./common.ts", "logger.ts", "common/github-manager/types.ts"],
     // "exclude": ["../node_modules/*"] // only affects files added by include
   }
-
-  // todo why is tsconfig not in pr-management

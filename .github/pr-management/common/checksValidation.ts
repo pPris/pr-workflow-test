@@ -39,7 +39,6 @@ async function validateChecks(validateForRef: string)
     while (areChecksOngoing) {
         checkRunsArr = await getListOfChecks(validateForRef)
 
-        // todo (slightly tedious) test fast fail
         // find failed checks and end early if there's any
         const didAnyCheckFail = findUnsuccessfulChecks(checkRunsArr);
 
@@ -77,7 +76,7 @@ function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
     let conclusionsDetails = "";
 
     checkRunsArr.forEach(checkRun => {
-        if (checkRun.status !== "completed") { // todo check on failing workflows
+        if (checkRun.status !== "completed") {
             core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
             conclusionsDetails += `* '${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
@@ -89,9 +88,9 @@ function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
 
 
 /**
- * Note: 
- * !! currently the only wrong conclusion is failure, letting all the others pass (?) // todo this comment needs attention
- * possible conclusions: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out
+ * Note: currently the only wrong conclusion is failure, other conclusions won't be highlighted.
+ * 
+ * Possible conclusions: action_required, cancelled, failure, neutral, success, skipped, stale, or timed_out
  * https://docs.github.com/en/rest/reference/checks#list-check-runs-for-a-git-reference
  * 
  * @returns: returns an array of checks that need attention (empty if none need attention)
