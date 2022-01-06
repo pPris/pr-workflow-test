@@ -23,7 +23,7 @@ async function run() {
         await handleLabelling(didChecksRunSuccessfully, errMessage, prLabels);
         
     } catch (ex) {
-        core.info(ex);
+        log.info(ex);
         core.setFailed(ex.message);
     }
 
@@ -36,13 +36,13 @@ run();
 async function handleLabelling(didChecksRunSuccessfully : boolean, errMessage : string, prLabels : string[]) {
     if (didChecksRunSuccessfully) {
         if (hasLabel(prLabels, toReviewLabel) || hasLabel(prLabels, finalReviewLabel) || hasLabel(prLabels, toMergeLabel)) {
-            core.info("PR already has a review label or toMerge label and checks are passing, nothing to do here. exiting...")
+            log.info("PR already has a review label or toMerge label and checks are passing, nothing to do here. exiting...")
             return;
         }
 
         // ongoing and ready-for-review prs mean that user was previously told to state when it's ready for review
         if (hasLabel(prLabels, ongoingLabel) && isOnSynchronise()) {
-            core.info("Waiting for user to manually state ready to review. exiting...");
+            log.info("Waiting for user to manually state ready to review. exiting...");
             return;
         }
 
@@ -56,7 +56,7 @@ async function handleLabelling(didChecksRunSuccessfully : boolean, errMessage : 
         
     } else { 
         if (hasLabel(prLabels, ongoingLabel) && await wasAuthorLinkedToFailingChecks()) {
-            core.info("PR has the ongoing label and author has previously been notified, exiting...")
+            log.info("PR has the ongoing label and author has previously been notified, exiting...")
             return;
         } 
         

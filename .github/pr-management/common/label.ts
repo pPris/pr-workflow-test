@@ -1,4 +1,4 @@
-import * as core from '@actions/core' // todo settle logger later
+import { log } from '../logger';
 import { finalReviewLabel, toReviewLabel } from './const'
 import { getSortedListOfEventsOnIssue, addLabel } from './github-manager/issues';
 
@@ -14,13 +14,13 @@ import { getSortedListOfEventsOnIssue, addLabel } from './github-manager/issues'
 
         if (e.label?.name == finalReviewLabel) {
             await addLabel(finalReviewLabel);
-            core.info(`${finalReviewLabel} was the last found review label on this PR, so adding it back.`);
+            log.info(`${finalReviewLabel} was the last found review label on this PR, so adding it back.`);
             return;
         }
 
         if (e.label?.name == toReviewLabel) {
             await addLabel(toReviewLabel);
-            core.info(`${toReviewLabel} was the last found review label on this PR, so adding it back.`);
+            log.info(`${toReviewLabel} was the last found review label on this PR, so adding it back.`);
             return;
         }   
     };

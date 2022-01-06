@@ -2,13 +2,12 @@
  * This file has all the helper functions needed to validate if the checks on a commit in a pr 
  * are successful / have completed execution.
  */
-import * as core from '@actions/core';
 import { log } from '../logger';
 import { errMessagePreamble, namesOfExcludedChecks, durationToWaitForChecks } from './const';
 import { getCurrentPRHeadSha, getListOfChecks } from './github-manager/interface';
 
 export async function sleep(ms : number) {
-    core.info(`sleeping for ${ms} milliseconds...`);
+    log.info(`sleeping for ${ms} milliseconds...`);
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -30,7 +29,7 @@ function doesArrInclude(arr : Array<any>, element) : boolean {
 async function validateChecks(validateForRef: string)
 : Promise<{ didChecksRunSuccessfully: boolean; errMessage: string }> {
 
-    core.info(`validating checks on ref: ${validateForRef}...`);
+    log.info(`validating checks on ref: ${validateForRef}...`);
 
     let areChecksOngoing = true;
     let checkRunsArr;
@@ -77,7 +76,7 @@ function formatUnsuccessfulChecks(checkRunsArr : Array<any>) : string {
 
     checkRunsArr.forEach(checkRun => {
         if (checkRun.status !== "completed") {
-            core.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
+            log.info(`${checkRun.name}'s completion status was ignored (${checkRun.status}, ${checkRun.conclusion})\n`);
         } else {
             conclusionsDetails += `* '${checkRun.name}' has completed with the conclusion: \`${checkRun.conclusion}\`. [Here are the details.](${checkRun.details_url})\n`;
         }

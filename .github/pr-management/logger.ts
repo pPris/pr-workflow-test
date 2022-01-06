@@ -6,11 +6,11 @@ import * as core from '@actions/core'
 
 ////// functions to help with logging //////
 function info(toPrint : any, label? : string) {
-    core.info(`${label}: ${toPrint}`);
-}
-
-function jsonInfo(jsonToPrint: JSON, label? : string) {
-    core.info(`${label}: ${JSON.stringify(jsonToPrint)}`);
+    if (label) {
+        core.info(`${label}: ${toPrint}`);
+    } else {
+        core.info(toPrint);
+    }
 }
 
 function warn(toPrint : any, label? : string) {

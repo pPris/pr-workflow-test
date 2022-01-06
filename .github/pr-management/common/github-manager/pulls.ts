@@ -37,7 +37,7 @@ export async function getCurrentPRHeadSha() {
     }).catch(err => {throw err;});
 
     const sha = pr.data.head.sha;
-    core.info(`PR head sha obtained for pr #${issue_number}: ${sha}`)
+    log.info(`PR head sha obtained for pr #${issue_number}: ${sha}`)
 
     return sha;
 }

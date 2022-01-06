@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { log } from '../logger';
 import { validateChecksOnPrHead } from '../common/checksValidation';
 import { ongoingLabel, reviewKeywords } from '../common/const';
 import { getCurrentIssue, postComment, removeLabel } from '../common/github-manager/issues';
@@ -20,7 +21,7 @@ async function run() {
         await removeLabel(ongoingLabel);
         await addAppropriateReviewLabel();
     } catch (ex) {
-        core.info(ex);
+        log.info(ex);
         core.setFailed(ex.message);
     }
 }
@@ -30,8 +31,8 @@ function filterCommentBody() : boolean {
     const issueComment = github.context.payload.comment.body;
     const hasKeywords = issueComment.search(reviewKeywords) !== -1;
 
-    core.info(`issueComment: ${issueComment}`);
-    core.info(`were keywords found in issue? ${hasKeywords}`);
+    log.info(`issueComment: ${issueComment}`);
+    log.info(`were keywords found in issue? ${hasKeywords}`);
 
     return hasKeywords;
 }
@@ -71,7 +72,7 @@ async function isValidAuthor() : Promise<boolean> {
     const commentAuthor : string = github.context.payload.comment.user.login; 
     const prAuthor : string = await getCurrentIssue().then(res => res.data.user.login);
 
-    core.info(`Author of comment that triggered this workflow: ${commentAuthor}.\n` +
+    log.info(`Author of comment that triggered this workflow: ${commentAuthor}.\n` +
         `Author of pr that this comment was added to: ${prAuthor}.\n`+
         `Is it a match? ${prAuthor === commentAuthor}`)
 

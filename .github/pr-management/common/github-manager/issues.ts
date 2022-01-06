@@ -46,7 +46,7 @@ export async function getCurrentPrLabels() : Promise<string[]> {
     .then(res => {
         // flatten the labels returned 
         const labels : string[] = res.data.labels.map((label: {name: string}) => label.name)
-        core.info(`labels returned for pr ${issue_number}: ${labels}`)
+        log.info(`labels returned for pr ${issue_number}: ${labels}`)
         return labels;        
     }) 
     .catch(err => {core.error(err); throw err});
@@ -63,7 +63,7 @@ export async function postComment(message : string) {
         issue_number,
         body: commentBody,
     })
-    .then(res => core.info(`Commented with status: ${res.status}:\n${res.data.body}\n`))
+    .then(res => log.info(`Commented with status: ${res.status}:\n${res.data.body}\n`))
     .catch(err => core.error(err))
 }
 

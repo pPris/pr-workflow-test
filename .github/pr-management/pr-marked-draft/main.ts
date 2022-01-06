@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import { log } from '../logger';
 import { ongoingLabel } from '../common/const';
 import { addLabel, getCurrentPR } from '../common/github-manager/interface';
 
@@ -10,13 +11,13 @@ async function run() {
         const needsLabelling = await doesPrNeedLabelling();
         
         if (!needsLabelling) {
-            core.info("needs no labelling, ending.")
+            log.info("needs no labelling, ending.")
             return;
         }
 
         await addLabel(ongoingLabel);
     } catch (ex) {
-        core.info(ex);
+        log.info(ex);
         core.setFailed(ex.message);
     }
 }
@@ -26,14 +27,14 @@ async function doesPrNeedLabelling() : Promise<boolean> {
     const pr = await getCurrentPR().catch(err => {throw err});
 
     if (!pr.draft) {
-        core.info("pr is not a draft");
+        log.info("pr is not a draft");
         return false;
     }
 
     const hasOngoingLabel = pr.labels.find(l => l.name === ongoingLabel) != undefined;
 
     if (hasOngoingLabel) {
-        core.info("pr has ongoing label");
+        log.info("pr has ongoing label");
         return false;
     }
 
